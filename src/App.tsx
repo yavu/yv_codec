@@ -112,14 +112,11 @@ function MorseConvert(mode: string, data: string[]): string[] {
 }
 
 function Encode(version: string, data: string): string {
-    let result: string = "";
     switch (version) {
         case "morse code":
-            result = MorseConvert("encode", data.toUpperCase().split("")).join(" ").replace(/ \n /g, "\n");
-            break;
+            return MorseConvert("encode", data.toUpperCase().split("")).join(" ").replace(/\n /g, "\n").trim();
         case "yv_wave 2023":
             let morse_char: string[][] = MorseConvert("encode", data.toUpperCase().split("")).map(x => [x]);
-            console.log(morse_char);
             for (let i = 0; i < morse_char.length; i++) {
                 if (morse_char[i][0] !== "\n") {
                     let pos: number = 0;
@@ -174,29 +171,40 @@ function Encode(version: string, data: string): string {
                                 break;
                         }
                     }
-                    if (morse_char[i][0].charAt(0) === "ᛌ" || morse_char[i][0].charAt(0) === "ᛧ") {
+                    if (morse_char[i][0]?.charAt(0) === "ᛌ" || morse_char[i][0]?.charAt(0) === "ᛧ") {
                         morse_char[i].unshift("❙");
                     }
                 }
             }
-            result = morse_char.join(" ").replace(/,/g, "").replace(/ \n /g, "\n");
-            break;
+            return morse_char.join(" ").replace(/,/g, "").replace(/\n /g, "\n").trim();
         default:
-            break;
+            return "";
     }
-    return result.trim();
 }
 
 function Decode(version: string, data: string): string {
-    let result: string = "";
     switch (version) {
         case "morse code":
-            result = MorseConvert("decode", data.replace(/\n/g, " \n ").toUpperCase().split(" ")).join("");
-            break;
+            return MorseConvert("decode", data.replace(/\n/g, " \n ").toUpperCase().split(" ")).join("").trim();
+        case "yv_wave 2023":
+            return MorseConvert("decode", data.replace(/\n/g, " \n ").split(" ").map(e =>
+                e.replace(/^❙/g, "")
+                .replace(/ᛌ❚❚/g, "------")
+                .replace(/ᛌ❚❙/g, "-----")
+                .replace(/ᛌ❚❘/g, "----")
+                .replace(/ᛌ❚/g, "---")
+                .replace(/ᛌ❙/g, "--")
+                .replace(/ᛌ❘/g, "-")
+                .replace(/ᛧ❚❚/g, "······")
+                .replace(/ᛧ❚❙/g, "·····")
+                .replace(/ᛧ❚❘/g, "····")
+                .replace(/ᛧ❚/g, "···")
+                .replace(/ᛧ❙/g, "··")
+                .replace(/ᛧ❘/g, "·")
+            )).join("").trim();
         default:
-            break;
+            return "";
     }
-    return result.trim();
 }
 
 
