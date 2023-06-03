@@ -93,32 +93,22 @@ function MorseConvert(mode: string, data: string[]): string[] {
 
         [" ", ""],
         ["　", ""],
-        ["\n", "\n"],
-        ["⛝", "⛝"]
+        ["\n", "\n"]
     ]
 
-    let result: string[] = [];
-    for (let i = 0; i < data.length; i++) {
-        if (mode === "encode") {
-            let find_index = morse_table.findIndex(([elem]) => {
-                return elem === data[i];
-            });
-            if (find_index === -1) {
-                find_index = morse_table.length - 1;
-            }
-            result.push(morse_table[find_index][1]);
-        }
-        else if (mode === "decode") {
-            let find_index = morse_table.findIndex(([, elem]) => {
-                return elem === data[i];
-            });
-            if (find_index === -1) {
-                find_index = morse_table.length - 1;
-            }
-            result.push(morse_table[find_index][0]);
-        }
+    if (mode === "encode") {
+        return data.map(e =>
+            morse_table.find(([k]) => k === e)?.[1] ?? "⛝"
+        )
     }
-    return result;
+    else if (mode === "decode") {
+        return data.map(e =>
+            morse_table.find(([, k]) => k === e)?.[0] ?? "⛝"
+        )
+    }
+    else {
+        return [];
+    }
 }
 
 function Encode(version: string, data: string): string {
@@ -184,7 +174,9 @@ function Encode(version: string, data: string): string {
                                 break;
                         }
                     }
-                    morse_char[i].unshift("❙");
+                    if (morse_char[i][0].charAt(0) === "ᛌ" || morse_char[i][0].charAt(0) === "ᛧ") {
+                        morse_char[i].unshift("❙");
+                    }
                 }
             }
             result = morse_char.join(" ").replace(/,/g, "").replace(/ \n /g, "\n");
