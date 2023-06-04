@@ -53,47 +53,47 @@ const DarkTheme = createTheme({
 function morse_convert(mode: string, data: string[]): string[] {
 
     const morse_table: string[][] = [
-        ["A", "·-"],
-        ["B", "-···"],
-        ["C", "-·-·"],
-        ["D", "-··"],
-        ["E", "·"],
-        ["F", "··-·"],
-        ["G", "--·"],
-        ["H", "····"],
-        ["I", "··"],
-        ["J", "·---"],
-        ["K", "-·-"],
-        ["L", "·-··"],
-        ["M", "--"],
-        ["N", "-·"],
-        ["O", "---"],
-        ["P", "·--·"],
-        ["Q", "--·-"],
-        ["R", "·-·"],
-        ["S", "···"],
-        ["T", "-"],
-        ["U", "··-"],
-        ["V", "···-"],
-        ["W", "·--"],
-        ["X", "-··-"],
-        ["Y", "-·--"],
-        ["Z", "--··"],
+        ["A", "·-", "half"],
+        ["B", "-···", "half"],
+        ["C", "-·-·", "half"],
+        ["D", "-··", "half"],
+        ["E", "·", "half"],
+        ["F", "··-·", "half"],
+        ["G", "--·", "half"],
+        ["H", "····", "half"],
+        ["I", "··", "half"],
+        ["J", "·---", "half"],
+        ["K", "-·-", "half"],
+        ["L", "·-··", "half"],
+        ["M", "--", "half"],
+        ["N", "-·", "half"],
+        ["O", "---", "half"],
+        ["P", "·--·", "half"],
+        ["Q", "--·-", "half"],
+        ["R", "·-·", "half"],
+        ["S", "···", "half"],
+        ["T", "-", "half"],
+        ["U", "··-", "half"],
+        ["V", "···-", "half"],
+        ["W", "·--", "half"],
+        ["X", "-··-", "half"],
+        ["Y", "-·--", "half"],
+        ["Z", "--··", "half"],
 
-        ["0", "-----"],
-        ["1", "·----"],
-        ["2", "··---"],
-        ["3", "···--"],
-        ["4", "····-"],
-        ["5", "·····"],
-        ["6", "-····"],
-        ["7", "--···"],
-        ["8", "---··"],
-        ["9", "----·"],
+        ["0", "-----", "half"],
+        ["1", "·----", "half"],
+        ["2", "··---", "half"],
+        ["3", "···--", "half"],
+        ["4", "····-", "half"],
+        ["5", "·····", "half"],
+        ["6", "-····", "half"],
+        ["7", "--···", "half"],
+        ["8", "---··", "half"],
+        ["9", "----·", "half"],
 
-        [" ", ""],
-        ["　", ""],
-        ["\n", "\n"]
+        [" ", "", "other"],
+        ["　", "", "other"],
+        ["\n", "\n", "other"]
     ]
 
     if (mode === "encode") {
@@ -113,70 +113,28 @@ function morse_convert(mode: string, data: string[]): string[] {
 
 function encode(version: string, data: string): string {
     switch (version) {
-        case "morse code":
+        case "morse code (intl.)":
             return morse_convert("encode", data.toUpperCase().split("")).join(" ").replace(/\n /g, "\n").trim();
         case "yv_wave 2023":
-            let morse_char: string[][] = morse_convert("encode", data.toUpperCase().split("")).map(x => [x]);
-            for (let i = 0; i < morse_char.length; i++) {
-                if (morse_char[i][0] !== "\n") {
-                    let pos: number = 0;
-                    while (pos < morse_char[i][0].length) {
-                        let range: number = 1;
-                        for (let n = pos + 1; morse_char[i][0].charAt(pos) === morse_char[i][0].charAt(n); n++) {
-                            range++;
-                        }
-                        morse_char[i].push(morse_char[i][0].substring(pos, pos + range));
-                        pos += range;
-                    }
-                    morse_char[i].shift();
-                    for (let j = 0; j < morse_char[i].length; j++) {
-                        switch (morse_char[i][j]) {
-                            case "-":
-                                morse_char[i].splice(j, 1, "ᛌ❘");
-                                break;
-                            case "--":
-                                morse_char[i].splice(j, 1, "ᛌ❙");
-                                break;
-                            case "---":
-                                morse_char[i].splice(j, 1, "ᛌ❚");
-                                break;
-                            case "----":
-                                morse_char[i].splice(j, 1, "ᛌ❚❘");
-                                break;
-                            case "-----":
-                                morse_char[i].splice(j, 1, "ᛌ❚❙");
-                                break;
-                            case "------":
-                                morse_char[i].splice(j, 1, "ᛌ❚❚");
-                                break;
-                            case "·":
-                                morse_char[i].splice(j, 1, "ᛧ❘");
-                                break;
-                            case "··":
-                                morse_char[i].splice(j, 1, "ᛧ❙");
-                                break;
-                            case "···":
-                                morse_char[i].splice(j, 1, "ᛧ❚");
-                                break;
-                            case "····":
-                                morse_char[i].splice(j, 1, "ᛧ❚❘");
-                                break;
-                            case "·····":
-                                morse_char[i].splice(j, 1, "ᛧ❚❙");
-                                break;
-                            case "······":
-                                morse_char[i].splice(j, 1, "ᛧ❚❚");
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    if (morse_char[i][0]?.charAt(0) === "ᛌ" || morse_char[i][0]?.charAt(0) === "ᛧ") {
-                        morse_char[i].unshift("❙");
-                    }
-                }
-            }
-            return morse_char.join(" ").replace(/,/g, "").replace(/\n /g, "\n").trim();
+            const replaces: [RegExp, string][] = [
+                [/------/g, "ᛌ❚❚"],
+                [/-----/g, "ᛌ❚❙"],
+                [/----/g, "ᛌ❚❘"],
+                [/---/g, "ᛌ❚"],
+                [/--/g, "ᛌ❙"],
+                [/-/g, "ᛌ❘"],
+                [/······/g, "ᛧ❚❚"],
+                [/·····/g, "ᛧ❚❙"],
+                [/····/g, "ᛧ❚❘"],
+                [/···/g, "ᛧ❚"],
+                [/··/g, "ᛧ❙"],
+                [/·/g, "ᛧ❘"]
+            ];
+            return morse_convert("encode", data.toUpperCase().split("")).map(e =>
+                replaces.reduce((a, [f, t]) =>
+                    a.replace(f, t), "❙" + e
+                )
+            ).join(" ").trim();
         default:
             return "";
     }
@@ -184,10 +142,10 @@ function encode(version: string, data: string): string {
 
 function decode(version: string, data: string): string {
     switch (version) {
-        case "morse code":
+        case "morse code (intl.)":
             return morse_convert("decode", data.replace(/\n/g, " \n ").toUpperCase().split(" ")).join("").trim();
         case "yv_wave 2023":
-            let replaces: [RegExp, string][] = [
+            const replaces: [RegExp, string][] = [
                 [/^❙/g, ""],
                 [/ᛌ❚❚/g, "------"],
                 [/ᛌ❚❙/g, "-----"],
@@ -215,7 +173,7 @@ function decode(version: string, data: string): string {
 
 export default function App(): JSX.Element {
 
-    const [version, setVersion] = React.useState("morse code");
+    const [version, setVersion] = React.useState("morse code (intl.)");
     const HandleVersionChange = (event: SelectChangeEvent) => {
         setVersion(event.target.value);
         if (text !== "") {
@@ -287,14 +245,15 @@ export default function App(): JSX.Element {
                                 >
                                     <Select
                                         id="version-select"
-                                        defaultValue={"morse code"}
+                                        defaultValue={"morse code (intl.)"}
                                         onChange={HandleVersionChange}
                                         sx={{
                                             width: "366px",
                                             marginX: "auto"
                                         }}
                                     >
-                                        <MenuItem value={"morse code"}>morse code</MenuItem>
+                                        <MenuItem value={"morse code (intl.)"}>morse code (intl.)</MenuItem>
+                                        <MenuItem value={"morse code (jp)"}>morse code (jp)</MenuItem>
                                         <MenuItem value={"yv_code 2020"}>yv_code 2020</MenuItem>
                                         <MenuItem value={"yv_wave 2023"}>yv_wave 2023</MenuItem>
                                         <MenuItem value={"yv_strata 2023"}>yv_strata 2023</MenuItem>
@@ -314,9 +273,10 @@ export default function App(): JSX.Element {
                                     multiline
                                     maxRows={8}
                                     value={text}
-                                    sx={{
-                                        width: "366px"
-                                    }}
+                                    fullWidth
+                                    //sx={{
+                                    //    width: "366px"
+                                    //}}
                                     onChange={HandleTextChange}
                                 />
                                 <TextField
