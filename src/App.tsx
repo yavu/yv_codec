@@ -50,7 +50,7 @@ const DarkTheme = createTheme({
     }
 });
 
-function MorseConvert(mode: string, data: string[]): string[] {
+function morse_convert(mode: string, data: string[]): string[] {
 
     const morse_table: string[][] = [
         ["A", "·-"],
@@ -111,12 +111,12 @@ function MorseConvert(mode: string, data: string[]): string[] {
     }
 }
 
-function Encode(version: string, data: string): string {
+function encode(version: string, data: string): string {
     switch (version) {
         case "morse code":
-            return MorseConvert("encode", data.toUpperCase().split("")).join(" ").replace(/\n /g, "\n").trim();
+            return morse_convert("encode", data.toUpperCase().split("")).join(" ").replace(/\n /g, "\n").trim();
         case "yv_wave 2023":
-            let morse_char: string[][] = MorseConvert("encode", data.toUpperCase().split("")).map(x => [x]);
+            let morse_char: string[][] = morse_convert("encode", data.toUpperCase().split("")).map(x => [x]);
             for (let i = 0; i < morse_char.length; i++) {
                 if (morse_char[i][0] !== "\n") {
                     let pos: number = 0;
@@ -182,25 +182,30 @@ function Encode(version: string, data: string): string {
     }
 }
 
-function Decode(version: string, data: string): string {
+function decode(version: string, data: string): string {
     switch (version) {
         case "morse code":
-            return MorseConvert("decode", data.replace(/\n/g, " \n ").toUpperCase().split(" ")).join("").trim();
+            return morse_convert("decode", data.replace(/\n/g, " \n ").toUpperCase().split(" ")).join("").trim();
         case "yv_wave 2023":
-            return MorseConvert("decode", data.replace(/\n/g, " \n ").split(" ").map(e =>
-                e.replace(/^❙/g, "")
-                .replace(/ᛌ❚❚/g, "------")
-                .replace(/ᛌ❚❙/g, "-----")
-                .replace(/ᛌ❚❘/g, "----")
-                .replace(/ᛌ❚/g, "---")
-                .replace(/ᛌ❙/g, "--")
-                .replace(/ᛌ❘/g, "-")
-                .replace(/ᛧ❚❚/g, "······")
-                .replace(/ᛧ❚❙/g, "·····")
-                .replace(/ᛧ❚❘/g, "····")
-                .replace(/ᛧ❚/g, "···")
-                .replace(/ᛧ❙/g, "··")
-                .replace(/ᛧ❘/g, "·")
+            let replaces: [RegExp, string][] = [
+                [/^❙/g, ""],
+                [/ᛌ❚❚/g, "------"],
+                [/ᛌ❚❙/g, "-----"],
+                [/ᛌ❚❘/g, "----"],
+                [/ᛌ❚/g, "---"],
+                [/ᛌ❙/g, "--"],
+                [/ᛌ❘/g, "-"],
+                [/ᛧ❚❚/g, "······"],
+                [/ᛧ❚❙/g, "·····"],
+                [/ᛧ❚❘/g, "····"],
+                [/ᛧ❚/g, "···"],
+                [/ᛧ❙/g, "··"],
+                [/ᛧ❘/g, "·"]
+            ];
+            return morse_convert("decode", data.replace(/\n/g, " \n ").split(" ").map(e =>
+                replaces.reduce((a, [f, t]) =>
+                    a.replace(f, t), e
+                )
             )).join("").trim();
         default:
             return "";
@@ -214,24 +219,24 @@ export default function App(): JSX.Element {
     const HandleVersionChange = (event: SelectChangeEvent) => {
         setVersion(event.target.value);
         if (text !== "") {
-            setCipher(Encode(event.target.value, text));
+            setCipher(encode(event.target.value, text));
         }
         else {
-            setText(Decode(event.target.value, cipher));
+            setText(decode(event.target.value, cipher));
         }
     };
 
     const [text, setText] = React.useState<string>("");
     const HandleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setText(event.target.value);
-        setCipher(Encode(version, event.target.value));
+        setCipher(encode(version, event.target.value));
 
     };
 
     const [cipher, setCipher] = React.useState<string>("");
     const HandleCipherChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setCipher(event.target.value);
-        setText(Decode(version, event.target.value));
+        setText(decode(version, event.target.value));
     };
 
     return (
