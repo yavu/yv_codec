@@ -91,18 +91,18 @@ function morse_convert(mode: string, data: string[]): string[] {
         ["8", "---··", "half"],
         ["9", "----·", "half"],
 
-        [" ", "", "other"],
-        ["　", "", "other"],
+        [" ", "", "half"],
+        ["　", "", "full"],
         ["\n", "\n", "other"]
     ]
 
     if (mode === "encode") {
-        return data.map(e =>
+        return data.map((e) =>
             morse_table.find(([k]) => k === e)?.[1] ?? "⛝"
         )
     }
     else if (mode === "decode") {
-        return data.map(e =>
+        return data.map((e) =>
             morse_table.find(([, k]) => k === e)?.[0] ?? "⛝"
         )
     }
@@ -113,7 +113,7 @@ function morse_convert(mode: string, data: string[]): string[] {
 
 function encode(version: string, data: string): string {
     switch (version) {
-        case "morse code (intl.)":
+        case "morse code intl":
             return morse_convert("encode", data.toUpperCase().split("")).join(" ").replace(/\n /g, "\n").trim();
         case "yv_wave 2023":
             const replaces: [RegExp, string][] = [
@@ -142,7 +142,7 @@ function encode(version: string, data: string): string {
 
 function decode(version: string, data: string): string {
     switch (version) {
-        case "morse code (intl.)":
+        case "morse code intl":
             return morse_convert("decode", data.replace(/\n/g, " \n ").toUpperCase().split(" ")).join("").trim();
         case "yv_wave 2023":
             const replaces: [RegExp, string][] = [
@@ -173,7 +173,7 @@ function decode(version: string, data: string): string {
 
 export default function App(): JSX.Element {
 
-    const [version, setVersion] = React.useState("morse code (intl.)");
+    const [version, setVersion] = React.useState("morse code intl");
     const HandleVersionChange = (event: SelectChangeEvent) => {
         setVersion(event.target.value);
         if (text !== "") {
@@ -245,18 +245,18 @@ export default function App(): JSX.Element {
                                 >
                                     <Select
                                         id="version-select"
-                                        defaultValue={"morse code (intl.)"}
+                                        defaultValue={"morse code intl"}
                                         onChange={HandleVersionChange}
                                         sx={{
                                             width: "366px",
                                             marginX: "auto"
                                         }}
                                     >
-                                        <MenuItem value={"morse code (intl.)"}>morse code (intl.)</MenuItem>
-                                        <MenuItem value={"morse code (jp)"}>morse code (jp)</MenuItem>
-                                        <MenuItem value={"yv_code 2020"}>yv_code 2020</MenuItem>
-                                        <MenuItem value={"yv_wave 2023"}>yv_wave 2023</MenuItem>
-                                        <MenuItem value={"yv_strata 2023"}>yv_strata 2023</MenuItem>
+                                        <MenuItem value={"morse code intl"}>Morse code (INTL)</MenuItem>
+                                        <MenuItem value={"morse code jp"}>Morse code (JP)</MenuItem>
+                                        <MenuItem value={"yv_code 2020"}>Yv-Code 2020</MenuItem>
+                                        <MenuItem value={"yv_wave 2023"}>Yv-Wave 2023</MenuItem>
+                                        <MenuItem value={"yv_strata 2023"}>Yv-Strata 2023</MenuItem>
                                     </Select>
                                 </FormControl>
                             </PropertyWrapper>
