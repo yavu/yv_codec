@@ -97,12 +97,12 @@ function morse_intl_convert(mode: string, data: string[]): string[] {
 
     if (mode === "encode") {
         return data.map((e) =>
-            morse_table.find(([k1,k2]) => (k1 === e) || (k2 === e))?.[2] ?? "⛝"
+            morse_table.find(([k1, k2]) => (k1 === e) || (k2 === e))?.[2] ?? "⛝"
         )
     }
     else if (mode === "decode") {
         return data.map((e) =>
-            morse_table.find(([,, k]) => k === e)?.[0] ?? "⛝"
+            morse_table.find(([, , k]) => k === e)?.[0] ?? "⛝"
         )
     }
     else {
@@ -131,12 +131,12 @@ function morse_jp_convert(mode: string, data: string[]): string[] {
 
     if (mode === "encode") {
         return data.map((e) =>
-            morse_table.find(([k1,k2]) => (k1 === e) || (k2 === e))?.[2] ?? "⛝"
+            morse_table.find(([k1, k2]) => (k1 === e) || (k2 === e))?.[2] ?? "⛝"
         )
     }
     else if (mode === "decode") {
         return data.map((e) =>
-            morse_table.find(([,, k]) => k === e)?.[0] ?? "⛝"
+            morse_table.find(([, , k]) => k === e)?.[0] ?? "⛝"
         )
     }
     else {
@@ -148,31 +148,43 @@ function encode(version: string, data: string): string {
     switch (version) {
         case "morse code intl":
             return morse_intl_convert("encode", data.toUpperCase().split("")).join(" ").replace(/\n /g, "\n").trim();
-        case "yv_wave 2023":
-            const replaces: [RegExp, string][] = [
-                [/------/g, "ᛌ❚❚"],
-                [/-----/g, "ᛌ❚❙"],
-                [/----/g, "ᛌ❚❘"],
-                [/---/g, "ᛌ❚"],
-                [/--/g, "ᛌ❙"],
-                [/-/g, "ᛌ❘"],
-                [/······/g, "ᛧ❚❚"],
-                [/·····/g, "ᛧ❚❙"],
-                [/····/g, "ᛧ❚❘"],
-                [/···/g, "ᛧ❚"],
-                [/··/g, "ᛧ❙"],
-                [/·/g, "ᛧ❘"]
-            ];
-            return morse_intl_convert("encode", data.toUpperCase().split("")).map(e =>
-                replaces.reduce((a, [f, t]) =>
-                    a.replace(f, t), "❙" + e
-                )
-                .replace(/❙\n/g, "\n")
+
+        case "morse code jp":
+            let data_array: string[] = data.toUpperCase().replace(/（/g, "(").replace(/）/g, ")").split("");
+            let anchor: number = 0;
+            for (let i = 0; i < data_array.length; i++ ) {
+                if (data_array[i] == "(") {
+                    
+                }
+            }
+            return "";
+
+
+        /*        case "yv_wave 2023":
+        const replaces: [RegExp, string][] = [
+            [/------/g, "ᛌ❚❚"],
+            [/-----/g, "ᛌ❚❙"],
+            [/----/g, "ᛌ❚❘"],
+            [/---/g, "ᛌ❚"],
+            [/--/g, "ᛌ❙"],
+            [/-/g, "ᛌ❘"],
+            [/······/g, "ᛧ❚❚"],
+            [/·····/g, "ᛧ❚❙"],
+            [/····/g, "ᛧ❚❘"],
+            [/···/g, "ᛧ❚"],
+            [/··/g, "ᛧ❙"],
+            [/·/g, "ᛧ❘"]
+        ];
+        return morse_intl_convert("encode", data.toUpperCase().split("")).map(e =>
+            replaces.reduce((a, [f, t]) =>
+                a.replace(f, t), "❙" + e
             )
-            .join(" ")
-            .replace(/ \n /g, "\n")
-            .replace(/ ❙ /g, "  ").replace(/ ❙ /g, "  ")
-            .trim();
+            .replace(/❙\n/g, "\n")
+        )
+        .join(" ")
+        .replace(/ \n /g, "\n")
+        .replace(/ ❙ /g, "  ").replace(/ ❙ /g, "  ")
+        .trim();*/
         default:
             return "";
     }
@@ -182,27 +194,27 @@ function decode(version: string, data: string): string {
     switch (version) {
         case "morse code intl":
             return morse_intl_convert("decode", data.replace(/\n/g, " \n ").toUpperCase().split(" ")).join("").trim();
-        case "yv_wave 2023":
-            const replaces: [RegExp, string][] = [
-                [/^❙/g, ""],
-                [/ᛌ❚❚/g, "------"],
-                [/ᛌ❚❙/g, "-----"],
-                [/ᛌ❚❘/g, "----"],
-                [/ᛌ❚/g, "---"],
-                [/ᛌ❙/g, "--"],
-                [/ᛌ❘/g, "-"],
-                [/ᛧ❚❚/g, "······"],
-                [/ᛧ❚❙/g, "·····"],
-                [/ᛧ❚❘/g, "····"],
-                [/ᛧ❚/g, "···"],
-                [/ᛧ❙/g, "··"],
-                [/ᛧ❘/g, "·"]
-            ];
-            return morse_intl_convert("decode", data.replace(/\n/g, " \n ").split(" ").map(e =>
-                replaces.reduce((a, [f, t]) =>
-                    a.replace(f, t), e
-                )
-            )).join("").trim();
+        /*        case "yv_wave 2023":
+                    const replaces: [RegExp, string][] = [
+                        [/^❙/g, ""],
+                        [/ᛌ❚❚/g, "------"],
+                        [/ᛌ❚❙/g, "-----"],
+                        [/ᛌ❚❘/g, "----"],
+                        [/ᛌ❚/g, "---"],
+                        [/ᛌ❙/g, "--"],
+                        [/ᛌ❘/g, "-"],
+                        [/ᛧ❚❚/g, "······"],
+                        [/ᛧ❚❙/g, "·····"],
+                        [/ᛧ❚❘/g, "····"],
+                        [/ᛧ❚/g, "···"],
+                        [/ᛧ❙/g, "··"],
+                        [/ᛧ❘/g, "·"]
+                    ];
+                    return morse_intl_convert("decode", data.replace(/\n/g, " \n ").split(" ").map(e =>
+                        replaces.reduce((a, [f, t]) =>
+                            a.replace(f, t), e
+                        )
+                    )).join("").trim();*/
         default:
             return "";
     }
