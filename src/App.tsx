@@ -50,60 +50,93 @@ const DarkTheme = createTheme({
     }
 });
 
-function morse_convert(mode: string, data: string[]): string[] {
+function morse_intl_convert(mode: string, data: string[]): string[] {
 
     const morse_table: string[][] = [
-        ["A", "·-", "half"],
-        ["B", "-···", "half"],
-        ["C", "-·-·", "half"],
-        ["D", "-··", "half"],
-        ["E", "·", "half"],
-        ["F", "··-·", "half"],
-        ["G", "--·", "half"],
-        ["H", "····", "half"],
-        ["I", "··", "half"],
-        ["J", "·---", "half"],
-        ["K", "-·-", "half"],
-        ["L", "·-··", "half"],
-        ["M", "--", "half"],
-        ["N", "-·", "half"],
-        ["O", "---", "half"],
-        ["P", "·--·", "half"],
-        ["Q", "--·-", "half"],
-        ["R", "·-·", "half"],
-        ["S", "···", "half"],
-        ["T", "-", "half"],
-        ["U", "··-", "half"],
-        ["V", "···-", "half"],
-        ["W", "·--", "half"],
-        ["X", "-··-", "half"],
-        ["Y", "-·--", "half"],
-        ["Z", "--··", "half"],
+        ["A", "Ａ", "·-"],
+        ["B", "Ｂ", "-···"],
+        ["C", "Ｃ", "-·-·"],
+        ["D", "Ｄ", "-··"],
+        ["E", "Ｅ", "·"],
+        ["F", "Ｆ", "··-·"],
+        ["G", "Ｇ", "--·"],
+        ["H", "Ｈ", "····"],
+        ["I", "Ｉ", "··"],
+        ["J", "Ｊ", "·---"],
+        ["K", "Ｋ", "-·-"],
+        ["L", "Ｌ", "·-··"],
+        ["M", "Ｍ", "--"],
+        ["N", "Ｎ", "-·"],
+        ["O", "Ｏ", "---"],
+        ["P", "Ｐ", "·--·"],
+        ["Q", "Ｑ", "--·-"],
+        ["R", "Ｒ", "·-·"],
+        ["S", "Ｓ", "···"],
+        ["T", "Ｔ", "-"],
+        ["U", "Ｕ", "··-"],
+        ["V", "Ｖ", "···-"],
+        ["W", "Ｗ", "·--"],
+        ["X", "Ｘ", "-··-"],
+        ["Y", "Ｙ", "-·--"],
+        ["Z", "Ｚ", "--··"],
 
-        ["0", "-----", "half"],
-        ["1", "·----", "half"],
-        ["2", "··---", "half"],
-        ["3", "···--", "half"],
-        ["4", "····-", "half"],
-        ["5", "·····", "half"],
-        ["6", "-····", "half"],
-        ["7", "--···", "half"],
-        ["8", "---··", "half"],
-        ["9", "----·", "half"],
+        ["0", "０", "-----"],
+        ["1", "１", "·----"],
+        ["2", "２", "··---"],
+        ["3", "３", "···--"],
+        ["4", "４", "····-"],
+        ["5", "５", "·····"],
+        ["6", "６", "-····"],
+        ["7", "７", "--···"],
+        ["8", "８", "---··"],
+        ["9", "９", "----·"],
 
-        [" ", "", "half"],
-        ["　", "", "full"],
-        ["\n", "\n", "other"]
+        [" ", "　", ""],
+        ["\n", "\n"]
     ]
 
     if (mode === "encode") {
         return data.map((e) =>
-            morse_table.find(([k]) => k === e)?.[1] ?? "⛝"
+            morse_table.find(([k1,k2]) => (k1 === e) || (k2 === e))?.[2] ?? "⛝"
         )
     }
     else if (mode === "decode") {
         return data.map((e) =>
-            morse_table.find(([, k]) => k === e)?.[0] ?? "⛝"
+            morse_table.find(([,, k]) => k === e)?.[0] ?? "⛝"
+        )
+    }
+    else {
+        return [];
+    }
+}
+
+function morse_jp_convert(mode: string, data: string[]): string[] {
+
+    const morse_table: string[][] = [
+
+        ["0", "０", "-----"],
+        ["1", "１", "·----"],
+        ["2", "２", "··---"],
+        ["3", "３", "···--"],
+        ["4", "４", "····-"],
+        ["5", "５", "·····"],
+        ["6", "６", "-····"],
+        ["7", "７", "--···"],
+        ["8", "８", "---··"],
+        ["9", "９", "----·"],
+
+        [" ", "　", ""],
+        ["\n", "\n"]
+    ]
+
+    if (mode === "encode") {
+        return data.map((e) =>
+            morse_table.find(([k1,k2]) => (k1 === e) || (k2 === e))?.[2] ?? "⛝"
+        )
+    }
+    else if (mode === "decode") {
+        return data.map((e) =>
+            morse_table.find(([,, k]) => k === e)?.[0] ?? "⛝"
         )
     }
     else {
@@ -114,7 +147,7 @@ function morse_convert(mode: string, data: string[]): string[] {
 function encode(version: string, data: string): string {
     switch (version) {
         case "morse code intl":
-            return morse_convert("encode", data.toUpperCase().split("")).join(" ").replace(/\n /g, "\n").trim();
+            return morse_intl_convert("encode", data.toUpperCase().split("")).join(" ").replace(/\n /g, "\n").trim();
         case "yv_wave 2023":
             const replaces: [RegExp, string][] = [
                 [/------/g, "ᛌ❚❚"],
@@ -130,11 +163,16 @@ function encode(version: string, data: string): string {
                 [/··/g, "ᛧ❙"],
                 [/·/g, "ᛧ❘"]
             ];
-            return morse_convert("encode", data.toUpperCase().split("")).map(e =>
+            return morse_intl_convert("encode", data.toUpperCase().split("")).map(e =>
                 replaces.reduce((a, [f, t]) =>
                     a.replace(f, t), "❙" + e
                 )
-            ).join(" ").trim();
+                .replace(/❙\n/g, "\n")
+            )
+            .join(" ")
+            .replace(/ \n /g, "\n")
+            .replace(/ ❙ /g, "  ").replace(/ ❙ /g, "  ")
+            .trim();
         default:
             return "";
     }
@@ -143,7 +181,7 @@ function encode(version: string, data: string): string {
 function decode(version: string, data: string): string {
     switch (version) {
         case "morse code intl":
-            return morse_convert("decode", data.replace(/\n/g, " \n ").toUpperCase().split(" ")).join("").trim();
+            return morse_intl_convert("decode", data.replace(/\n/g, " \n ").toUpperCase().split(" ")).join("").trim();
         case "yv_wave 2023":
             const replaces: [RegExp, string][] = [
                 [/^❙/g, ""],
@@ -160,7 +198,7 @@ function decode(version: string, data: string): string {
                 [/ᛧ❙/g, "··"],
                 [/ᛧ❘/g, "·"]
             ];
-            return morse_convert("decode", data.replace(/\n/g, " \n ").split(" ").map(e =>
+            return morse_intl_convert("decode", data.replace(/\n/g, " \n ").split(" ").map(e =>
                 replaces.reduce((a, [f, t]) =>
                     a.replace(f, t), e
                 )
