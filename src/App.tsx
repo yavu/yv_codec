@@ -50,6 +50,13 @@ const DarkTheme = createTheme({
     }
 });
 
+function katakana_to_hiragana(str: string): string {
+    return str.replace(/[\u30a1-\u30f6]/g, function (match) {
+        let chr: number = match.charCodeAt(0) - 0x60;
+        return String.fromCharCode(chr);
+    });
+}
+
 function morse_intl_convert(mode: string, data: string[]): string[] {
 
     const morse_table: string[][] = [
@@ -113,7 +120,9 @@ function morse_intl_convert(mode: string, data: string[]): string[] {
 function morse_jp_convert(mode: string, data: string[]): string[] {
 
     const morse_table: string[][] = [
-
+        ["あ","ｱ","===="],
+        ["（","(","["],
+        ["）",")","]"],
         ["0", "０", "-----"],
         ["1", "１", "·----"],
         ["2", "２", "··---"],
@@ -150,14 +159,34 @@ function encode(version: string, data: string): string {
             return morse_intl_convert("encode", data.toUpperCase().split("")).join(" ").replace(/\n /g, "\n").trim();
 
         case "morse code jp":
-            let data_array: string[] = data.toUpperCase().replace(/（/g, "(").replace(/）/g, ")").split("");
+            let data_array: string[] = katakana_to_hiragana(data).toUpperCase().split("");
+            let result: string[] = [];
             let anchor: number = 0;
-            for (let i = 0; i < data_array.length; i++ ) {
-                if (data_array[i] == "(") {
-                    
+            let mode: string = "jp";
+            for (let i = 0; i < data_array.length; i++) {
+                if (mode == "jp") {
+                    if (i == data_array.length - 1) {
+                        result.concat(morse_jp_convert("encode",data_array.slice(anchor, i)));
+                    }
+                    else if (data_array[i] == "(" || data_array[i] == "（") {
+                        result.concat(morse_jp_convert("encode",data_array.slice(anchor, i)));
+                        anchor = i;
+                        mode = "intl";
+                    }
+                }
+                else if (mode == "intl") {
+                    if (i == data_array.length - 1) {
+                        result.concat(morse_intl_convert("encode",data_array.slice(anchor, i)));
+                    }
+                    else if (data_array[i] == ")" || data_array[i] == "）") {
+                        result.concat(morse_intl_convert("encode",data_array.slice(anchor, i - 1)));
+                        anchor = i;
+                        mode = "jp";
+                    }
                 }
             }
-            return "";
+            console.log(result);
+            return result.join(" ").replace(/\n /g, "\n").trim();;
 
 
         /*        case "yv_wave 2023":
