@@ -57,9 +57,9 @@ function katakana_to_hiragana(str: string): string {
     });
 }
 
-function morse_intl_convert(mode: string, data: string[]): string[] {
+function morse_convert(mode: string, type: string, data: string[]): string[] {
 
-    const morse_table: string[][] = [
+    const intl_table: string[][] = [
         ["A", "Ａ", "·-"],
         ["B", "Ｂ", "-···"],
         ["C", "Ｃ", "-·-·"],
@@ -85,8 +85,68 @@ function morse_intl_convert(mode: string, data: string[]): string[] {
         ["W", "Ｗ", "·--"],
         ["X", "Ｘ", "-··-"],
         ["Y", "Ｙ", "-·--"],
-        ["Z", "Ｚ", "--··"],
+        ["Z", "Ｚ", "--··"]
+    ]
 
+    const jp_table: string[][] = [
+        ["あ", "ｱ", "--·--"],
+        ["い", "ｲ", "·-"],
+        ["う", "ｳ", "··-"],
+        ["え", "ｴ", "-·---"],
+        ["お", "ｵ", "·-···"],
+        ["か", "ｶ", "·-··"],
+        ["き", "ｷ", "-·-··"],
+        ["く", "ｸ", "···-"],
+        ["け", "ｹ", "-·--"],
+        ["こ", "ｺ", "----"],
+        ["さ", "ｻ", "-·-·-"],
+        ["し", "ｼ", "--·-·"],
+        ["す", "ｽ", "---·"],
+        ["せ", "ｾ", "·---·"],
+        ["そ", "ｿ", "---·"],
+        ["た", "ﾀ", "-·"],
+        ["ち", "ﾁ", "··-·"],
+        ["つ", "ﾂ", "·--·"],
+        ["て", "ﾃ", "·-·--"],
+        ["と", "ﾄ", "··-··"],
+        ["な", "ﾅ", "·-·"],
+        ["に", "ﾆ", "-·-·"],
+        ["ぬ", "ﾇ", "····"],
+        ["ね", "ﾈ", "--·-"],
+        ["の", "ﾉ", "··--"],
+        ["は", "ﾊ", "-···"],
+        ["ひ", "ﾋ", "--··-"],
+        ["ふ", "ﾌ", "--··"],
+        ["へ", "ﾍ", "·"],
+        ["ほ", "ﾎ", "-··"],
+        ["ま", "ﾏ", "-··-"],
+        ["み", "ﾐ", "··-·-"],
+        ["む", "ﾑ", "-"],
+        ["め", "ﾒ", "-···-"],
+        ["も", "ﾓ", "-··-·"],
+        ["や", "ﾔ", "·--"],
+        ["ゆ", "ﾕ", "-··--"],
+        ["よ", "ﾖ", "--"],
+        ["ら", "ﾗ", "···"],
+        ["り", "ﾘ", "--·"],
+        ["る", "ﾙ", "-·--·"],
+        ["れ", "ﾚ", "---"],
+        ["ろ", "ﾛ", "·-·-"],
+        ["わ", "ﾜ", "-·-"],
+        ["ゐ", "ゐ", "·-··-"],
+        ["ゑ", "ゑ", "·--··"],
+        ["を", "ｦ", "·---"],
+        ["ん", "ﾝ", "·-·-·"],
+
+        ["゛", "゛", "··"],
+        ["゜", "゜", "··--·"],
+        ["ー", "ー", "·--·-"],
+        ["、", ",", "·-·-·-"],
+        ["(", "（", "-·--·-"],
+        [")", "）", "·-··-·"]
+    ]
+
+    let table: string[][] = [
         ["0", "０", "-----"],
         ["1", "１", "·----"],
         ["2", "２", "··---"],
@@ -97,55 +157,25 @@ function morse_intl_convert(mode: string, data: string[]): string[] {
         ["7", "７", "--···"],
         ["8", "８", "---··"],
         ["9", "９", "----·"],
-
         [" ", "　", ""],
-        ["\n", "\n"]
-    ]
+        ["\n", "\n", "\n"]
+    ];
+
+    if (type === "intl") {
+        table = table.concat(intl_table);
+    }
+    else if (type === "jp") {
+        table = table.concat(jp_table);
+    }
 
     if (mode === "encode") {
         return data.map((e) =>
-            morse_table.find(([k1, k2]) => (k1 === e) || (k2 === e))?.[2] ?? "⛝"
+            table.find(([k1, k2]) => (k1 === e) || (k2 === e))?.[2] ?? "⛝"
         )
     }
     else if (mode === "decode") {
         return data.map((e) =>
-            morse_table.find(([, , k]) => k === e)?.[0] ?? "⛝"
-        )
-    }
-    else {
-        return [];
-    }
-}
-
-function morse_jp_convert(mode: string, data: string[]): string[] {
-
-    const morse_table: string[][] = [
-        ["あ","ｱ","===="],
-        ["（","(","["],
-        ["）",")","]"],
-        ["0", "０", "-----"],
-        ["1", "１", "·----"],
-        ["2", "２", "··---"],
-        ["3", "３", "···--"],
-        ["4", "４", "····-"],
-        ["5", "５", "·····"],
-        ["6", "６", "-····"],
-        ["7", "７", "--···"],
-        ["8", "８", "---··"],
-        ["9", "９", "----·"],
-
-        [" ", "　", ""],
-        ["\n", "\n"]
-    ]
-
-    if (mode === "encode") {
-        return data.map((e) =>
-            morse_table.find(([k1, k2]) => (k1 === e) || (k2 === e))?.[2] ?? "⛝"
-        )
-    }
-    else if (mode === "decode") {
-        return data.map((e) =>
-            morse_table.find(([, , k]) => k === e)?.[0] ?? "⛝"
+            table.find(([, , k]) => k === e)?.[0] ?? "⛝"
         )
     }
     else {
@@ -156,7 +186,7 @@ function morse_jp_convert(mode: string, data: string[]): string[] {
 function encode(version: string, data: string): string {
     switch (version) {
         case "morse code intl":
-            return morse_intl_convert("encode", data.toUpperCase().split("")).join(" ").replace(/\n /g, "\n").trim();
+            return morse_convert("encode", "intl", data.toUpperCase().split("")).join(" ").replace(/ \n |\n | \n/g, "\n").trim();
 
         case "morse code jp":
             let data_array: string[] = katakana_to_hiragana(data).toUpperCase().split("");
@@ -165,28 +195,25 @@ function encode(version: string, data: string): string {
             let mode: string = "jp";
             for (let i = 0; i < data_array.length; i++) {
                 if (mode == "jp") {
-                    if (i == data_array.length - 1) {
-                        result.concat(morse_jp_convert("encode",data_array.slice(anchor, i)));
-                    }
-                    else if (data_array[i] == "(" || data_array[i] == "（") {
-                        result.concat(morse_jp_convert("encode",data_array.slice(anchor, i)));
-                        anchor = i;
+                    if (data_array[i] == "(" || data_array[i] == "（") {
+                        result = result.concat(morse_convert("encode", "jp", data_array.slice(anchor, i + 1)));
+                        anchor = i + 1;
                         mode = "intl";
                     }
                 }
                 else if (mode == "intl") {
-                    if (i == data_array.length - 1) {
-                        result.concat(morse_intl_convert("encode",data_array.slice(anchor, i)));
-                    }
-                    else if (data_array[i] == ")" || data_array[i] == "）") {
-                        result.concat(morse_intl_convert("encode",data_array.slice(anchor, i - 1)));
+                    if (data_array[i] == ")" || data_array[i] == "）") {
+                        result = result.concat(morse_convert("encode", "intl", data_array.slice(anchor, i)));
                         anchor = i;
                         mode = "jp";
                     }
                 }
+
+                if (i + 1 == data_array.length) {
+                    result = result.concat(morse_convert("encode", mode, data_array.slice(anchor)));
+                }
             }
-            console.log(result);
-            return result.join(" ").replace(/\n /g, "\n").trim();;
+            return result.join(" ").replace(/ \n |\n | \n/g, "\n").trim();
 
 
         /*        case "yv_wave 2023":
@@ -222,28 +249,55 @@ function encode(version: string, data: string): string {
 function decode(version: string, data: string): string {
     switch (version) {
         case "morse code intl":
-            return morse_intl_convert("decode", data.replace(/\n/g, " \n ").toUpperCase().split(" ")).join("").trim();
+            return morse_convert("decode", "intl", data.replace(/\n/g, " \n ").toUpperCase().split(" ")).join("").replace(/ \n |\n | \n/g, "\n").trim();
+        case "morse code jp":
+            let data_array: string[] = data.replace(/\n/g, " \n ").toUpperCase().split(" ");
+            let result: string[] = [];
+            let anchor: number = 0;
+            let mode: string = "jp";
+            for (let i = 0; i < data_array.length; i++) {
+                if (mode == "jp") {
+                    if (data_array[i] == "-·--·-") {
+                        result = result.concat(morse_convert("decode", "jp", data_array.slice(anchor, i + 1)));
+                        anchor = i + 1;
+                        mode = "intl";
+                    }
+                }
+                else if (mode == "intl") {
+                    if (data_array[i] == "·-··-·") {
+                        result = result.concat(morse_convert("decode", "intl", data_array.slice(anchor, i)));
+                        anchor = i;
+                        mode = "jp";
+                    }
+                }
+
+                if (i + 1 == data_array.length) {
+                    result = result.concat(morse_convert("decode", mode, data_array.slice(anchor)));
+                }
+            }
+            return result.join("").replace(/ \n |\n | \n/g, "\n").trim();
+
         /*        case "yv_wave 2023":
-                    const replaces: [RegExp, string][] = [
-                        [/^❙/g, ""],
-                        [/ᛌ❚❚/g, "------"],
-                        [/ᛌ❚❙/g, "-----"],
-                        [/ᛌ❚❘/g, "----"],
-                        [/ᛌ❚/g, "---"],
-                        [/ᛌ❙/g, "--"],
-                        [/ᛌ❘/g, "-"],
-                        [/ᛧ❚❚/g, "······"],
-                        [/ᛧ❚❙/g, "·····"],
-                        [/ᛧ❚❘/g, "····"],
-                        [/ᛧ❚/g, "···"],
-                        [/ᛧ❙/g, "··"],
-                        [/ᛧ❘/g, "·"]
-                    ];
-                    return morse_intl_convert("decode", data.replace(/\n/g, " \n ").split(" ").map(e =>
-                        replaces.reduce((a, [f, t]) =>
-                            a.replace(f, t), e
-                        )
-                    )).join("").trim();*/
+                const replaces: [RegExp, string][] = [
+                    [/^❙/g, ""],
+                    [/ᛌ❚❚/g, "------"],
+                    [/ᛌ❚❙/g, "-----"],
+                    [/ᛌ❚❘/g, "----"],
+                    [/ᛌ❚/g, "---"],
+                    [/ᛌ❙/g, "--"],
+                    [/ᛌ❘/g, "-"],
+                    [/ᛧ❚❚/g, "······"],
+                    [/ᛧ❚❙/g, "·····"],
+                    [/ᛧ❚❘/g, "····"],
+                    [/ᛧ❚/g, "···"],
+                    [/ᛧ❙/g, "··"],
+                    [/ᛧ❘/g, "·"]
+                ];
+                return morse_intl_convert("decode", data.replace(/\n/g, " \n ").split(" ").map(e =>
+                    replaces.reduce((a, [f, t]) =>
+                        a.replace(f, t), e
+                    )
+                )).join("").trim();*/
         default:
             return "";
     }
@@ -397,3 +451,4 @@ function PropertyWrapper({ children }: Props): JSX.Element {
         </Paper>
     )
 }
+
