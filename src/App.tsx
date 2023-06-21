@@ -138,8 +138,8 @@ function morse_convert(mode: string, type: string, data: string[]): string[] {
         ["を", "ｦ", "·---"],
         ["ん", "ﾝ", "·-·-·"],
 
-        ["゛", "゛", "··"],
-        ["゜", "゜", "··--·"],
+        ["゙", "゛", "··"],
+        ["゚", "゜", "··--·"],
         ["ー", "ー", "·--·-"],
         ["、", ",", "·-·-·-"],
         ["(", "（", "-·--·-"],
@@ -189,27 +189,27 @@ function encode(version: string, data: string): string {
             return morse_convert("encode", "intl", data.toUpperCase().split("")).join(" ").replace(/ \n |\n | \n/g, "\n").trim();
 
         case "morse code jp":
-            let data_array: string[] = katakana_to_hiragana(data).toUpperCase().split("");
+            let data_array: string[] = katakana_to_hiragana(data).toUpperCase().normalize("NFD").split("");//.map(v => v === "\u3099" ? "゛" : v).map(v => v === "\u309A" ? "゜" : v);
             let result: string[] = [];
             let anchor: number = 0;
             let mode: string = "jp";
             for (let i = 0; i < data_array.length; i++) {
-                if (mode == "jp") {
-                    if (data_array[i] == "(" || data_array[i] == "（") {
+                if (mode === "jp") {
+                    if (data_array[i] === "(" || data_array[i] === "（") {
                         result = result.concat(morse_convert("encode", "jp", data_array.slice(anchor, i + 1)));
                         anchor = i + 1;
                         mode = "intl";
                     }
                 }
-                else if (mode == "intl") {
-                    if (data_array[i] == ")" || data_array[i] == "）") {
+                else if (mode === "intl") {
+                    if (data_array[i] === ")" || data_array[i] === "）") {
                         result = result.concat(morse_convert("encode", "intl", data_array.slice(anchor, i)));
                         anchor = i;
                         mode = "jp";
                     }
                 }
 
-                if (i + 1 == data_array.length) {
+                if (i + 1 === data_array.length) {
                     result = result.concat(morse_convert("encode", mode, data_array.slice(anchor)));
                 }
             }
@@ -256,26 +256,27 @@ function decode(version: string, data: string): string {
             let anchor: number = 0;
             let mode: string = "jp";
             for (let i = 0; i < data_array.length; i++) {
-                if (mode == "jp") {
-                    if (data_array[i] == "-·--·-") {
+                if (mode === "jp") {
+                    if (data_array[i] === "-·--·-") {
                         result = result.concat(morse_convert("decode", "jp", data_array.slice(anchor, i + 1)));
                         anchor = i + 1;
                         mode = "intl";
                     }
                 }
-                else if (mode == "intl") {
-                    if (data_array[i] == "·-··-·") {
+                else if (mode === "intl") {
+                    if (data_array[i] === "·-··-·") {
                         result = result.concat(morse_convert("decode", "intl", data_array.slice(anchor, i)));
                         anchor = i;
                         mode = "jp";
                     }
                 }
 
-                if (i + 1 == data_array.length) {
+                if (i + 1 === data_array.length) {
                     result = result.concat(morse_convert("decode", mode, data_array.slice(anchor)));
                 }
             }
-            return result.join("").replace(/ \n |\n | \n/g, "\n").trim();
+            //console.log("がぎぐあご".normalize("NFD").replace(/"(\u3099|\u309A)"/g, (e) => {return String.fromCharCode(e.charCodeAt(0) + 0x02)}));
+            return result.join("").normalize("NFC").replace(/ \n |\n | \n/g, "\n").trim();
 
         /*        case "yv_wave 2023":
                 const replaces: [RegExp, string][] = [
