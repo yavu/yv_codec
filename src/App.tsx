@@ -3,31 +3,34 @@ import './App.css';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Grid from '@mui/material/Unstable_Grid2';
-import { FormControl, MenuItem, Paper, Select, SelectChangeEvent, TextField, Typography } from '@mui/material';
+import { Divider, FormControl, MenuItem, Paper, Select, SelectChangeEvent, TextField, Typography } from '@mui/material';
 import { ReactNode } from 'react';
 
 const DarkTheme = createTheme({
     typography: {
-        fontFamily: [
-            'Share Tech Mono'
-        ].join(',')
+        fontFamily: "Share Tech Mono",
+        button: {
+            fontWeight: 600,
+        },
     },
     palette: {
-        mode: 'dark',
+        mode: "dark",
         primary: {
-            main: '#00b0ff',
+            main: "#00b0ff",
+            contrastText: "#2a3648",
         },
         secondary: {
-            main: '#ef6c00',
+            main: "#ef6c00",
         },
         background: {
-            default: '#101d31',
-            paper: '#101d31',
+            default: "#101d31",
+            paper: "#101d31",
         },
         error: {
-            main: '#ff1744',
+            main: "#ff1744",
         },
     },
+    spacing: 16,
     components: {
         MuiCssBaseline: {
             styleOverrides: `
@@ -46,7 +49,27 @@ const DarkTheme = createTheme({
                 opacity: 0.1;
             }
             `
+        },
+        MuiButton: {
+            styleOverrides: {
+                root: ({ ownerState }) => ({
+                    ...(ownerState.size === "medium" && {
+                        boxSizing: "border-box",
+                        height: "40px",
+                        paddingTop: "8px",
+                    })
+                })
+            }
+        },
+        MuiToggleButtonGroup: {
+            styleOverrides: {
+                root: {
+                    boxSizing: "border-box",
+                    height: "40px"
+                }
+            }
         }
+
     }
 });
 
@@ -299,7 +322,10 @@ function decode(version: string, data: string): string {
                 }
             }
             //console.log("がぎぐあご".normalize("NFD").replace(/"(\u3099|\u309A)"/g, (e) => {return String.fromCharCode(e.charCodeAt(0) + 0x02)}));
-            return result.join("").normalize("NFC").replace(/ \n |\n | \n/g, "\n").trim();
+            return result.join("")
+                .normalize("NFC")
+                .replace(/ \n |\n | \n/g, "\n")
+                .trim();
 
         case "yv_wave 2023":
             const replaces: [RegExp, string][] = [
@@ -318,7 +344,6 @@ function decode(version: string, data: string): string {
             ];
 
             return decode("morse code jp", data.replace(/\n/g, " \n ").split(" ").map(e => replaces.reduce((a, [f, t]) => a.replace(f, t), e)).join(" ").replace(/ \n |\n | \n/g, "\n").replace(/[❘❙❚]/g, ""));
-
 
         default:
             return "";
@@ -376,8 +401,8 @@ export default function App(): JSX.Element {
                             sx={{
                                 height: "auto",
                                 width: "430px",
-                                padding: "16px",
-                                margin: "16px",
+                                padding: DarkTheme.spacing(1),
+                                margin: DarkTheme.spacing(1),
                                 overflowX: "hidden",
                                 overflowY: "auto"
                             }}
@@ -386,13 +411,18 @@ export default function App(): JSX.Element {
                                 variant="h5"
                                 gutterBottom
                             >
-                                Yv-Cipher
+                                YV-Cipher
                             </Typography>
+                            <Divider
+                                sx={{
+                                    margin: `${DarkTheme.spacing(1)} 0`
+                                }}
+                            />
                             <PropertyWrapper>
                                 <Typography
                                     variant="h5"
                                 >
-                                    Version
+                                    Type
                                 </Typography>
                                 <FormControl
                                     size="small"
@@ -468,8 +498,8 @@ function PropertyWrapper({ children }: Props): JSX.Element {
             elevation={6}
             sx={{
                 width: "398px",
-                padding: "16px",
-                marginBottom: "16px"
+                padding: DarkTheme.spacing(1),
+                marginBottom: DarkTheme.spacing(1)
             }}
         >
             {children}
