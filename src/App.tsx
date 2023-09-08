@@ -357,7 +357,7 @@ export default function App(): JSX.Element {
     const HandleVersionChange = (event: SelectChangeEvent) => {
         setVersion(event.target.value);
         if (text !== "") {
-            setCipher(encode(event.target.value, text));
+            setCode(encode(event.target.value, text));
         }
         else {
             setText(decode(event.target.value, code));
@@ -367,13 +367,13 @@ export default function App(): JSX.Element {
     const [text, setText] = React.useState<string>("");
     const HandleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setText(event.target.value);
-        setCipher(encode(version, event.target.value));
+        setCode(encode(version, event.target.value));
 
     };
 
-    const [code, setCipher] = React.useState<string>("");
-    const HandleCipherChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setCipher(event.target.value);
+    const [code, setCode] = React.useState<string>("");
+    const HandleCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setCode(event.target.value);
         setText(decode(version, event.target.value));
     };
 
@@ -412,7 +412,7 @@ export default function App(): JSX.Element {
                             <Typography
                                 variant="h5"
                             >
-                                YV-Code
+                                YV-Codec
                             </Typography>
                             <Divider
                                 sx={{
@@ -438,7 +438,7 @@ export default function App(): JSX.Element {
                                     >
                                         <MenuItem value={"morse code intl"}>Morse code (INTL)</MenuItem>
                                         <MenuItem value={"morse code jp"}>Morse code (JP)</MenuItem>
-                                        <MenuItem value={"yv_wave 2023"}>Yv-Wave 2023</MenuItem>
+                                        <MenuItem value={"yv_wave 2023"}>YV-Wave 2023</MenuItem>
                                         {/*
                                         <MenuItem value={"yv_code 2020"}>Yv-Code 2020</MenuItem>
                                         <MenuItem value={"yv_wave 2023"}>Yv-Wave 2023</MenuItem>
@@ -471,7 +471,7 @@ export default function App(): JSX.Element {
                                     maxRows={8}
                                     value={code}
                                     fullWidth
-                                    onChange={HandleCipherChange}
+                                    onChange={HandleCodeChange}
                                 />
                             </PropertyWrapper>
                         </Paper>
