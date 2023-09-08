@@ -360,7 +360,7 @@ export default function App(): JSX.Element {
             setCipher(encode(event.target.value, text));
         }
         else {
-            setText(decode(event.target.value, cipher));
+            setText(decode(event.target.value, code));
         }
     };
 
@@ -371,7 +371,7 @@ export default function App(): JSX.Element {
 
     };
 
-    const [cipher, setCipher] = React.useState<string>("");
+    const [code, setCipher] = React.useState<string>("");
     const HandleCipherChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setCipher(event.target.value);
         setText(decode(version, event.target.value));
@@ -389,19 +389,21 @@ export default function App(): JSX.Element {
                 <ThemeProvider theme={DarkTheme}>
                     <CssBaseline />
                     <Grid
-
                         container
                         direction="row"
                         justifyContent="center"
                         flexWrap="nowrap"
                         alignItems="flex-start"
+                        //overflow='hidden'
                     >
                         <Paper
                             elevation={2}
                             sx={{
                                 height: "auto",
-                                width: "430px",
+                                minWidth: DarkTheme.spacing(20),
+                                maxWidth: DarkTheme.spacing(24),
                                 padding: DarkTheme.spacing(1),
+                                paddingBottom: "0",
                                 margin: DarkTheme.spacing(1),
                                 overflowX: "hidden",
                                 overflowY: "auto"
@@ -409,13 +411,13 @@ export default function App(): JSX.Element {
                         >
                             <Typography
                                 variant="h5"
-                                gutterBottom
                             >
-                                YV-Cipher
+                                YV-Code
                             </Typography>
                             <Divider
                                 sx={{
-                                    margin: `${DarkTheme.spacing(1)} 0`
+                                    marginTop: DarkTheme.spacing(0.5),
+                                    marginBottom: DarkTheme.spacing(1)
                                 }}
                             />
                             <PropertyWrapper>
@@ -427,15 +429,12 @@ export default function App(): JSX.Element {
                                 <FormControl
                                     size="small"
                                     margin="dense"
+                                    fullWidth
                                 >
                                     <Select
                                         id="version-select"
                                         defaultValue={"morse code intl"}
                                         onChange={HandleVersionChange}
-                                        sx={{
-                                            width: "366px",
-                                            marginX: "auto"
-                                        }}
                                     >
                                         <MenuItem value={"morse code intl"}>Morse code (INTL)</MenuItem>
                                         <MenuItem value={"morse code jp"}>Morse code (JP)</MenuItem>
@@ -462,21 +461,16 @@ export default function App(): JSX.Element {
                                     maxRows={8}
                                     value={text}
                                     fullWidth
-                                    //sx={{
-                                    //    width: "366px"
-                                    //}}
                                     onChange={HandleTextChange}
                                 />
                                 <TextField
-                                    label="Cipher"
+                                    label="Code"
                                     size="small"
                                     margin="dense"
                                     multiline
                                     maxRows={8}
-                                    value={cipher}
-                                    sx={{
-                                        width: "366px"
-                                    }}
+                                    value={code}
+                                    fullWidth
                                     onChange={HandleCipherChange}
                                 />
                             </PropertyWrapper>
@@ -497,7 +491,7 @@ function PropertyWrapper({ children }: Props): JSX.Element {
         <Paper
             elevation={6}
             sx={{
-                width: "398px",
+                width: "100%",
                 padding: DarkTheme.spacing(1),
                 marginBottom: DarkTheme.spacing(1)
             }}
