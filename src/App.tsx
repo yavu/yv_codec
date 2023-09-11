@@ -172,9 +172,7 @@ function morse_convert(mode: string, type: string, data: string[]): string[] {
         ["゙", "゛", "··", "j"],
         ["゚", "゜", "··--·", "j"],
         ["ー", "ー", "·--·-", "j"],
-        ["、", ",", "·-·-·-", "j"],
-        ["(", "（", "-·--·-", "o"],
-        [")", "）", "·-··-·", "o"]
+        ["、", ",", "·-·-·-", "j"]
     ]
 
     let table: string[][] = [
@@ -188,6 +186,8 @@ function morse_convert(mode: string, type: string, data: string[]): string[] {
         ["7", "７", "--···", "o"],
         ["8", "８", "---··", "o"],
         ["9", "９", "----·", "o"],
+        ["(", "（", "-·--·-", "o"],
+        [")", "）", "·-··-·", "o"],
         [" ", "　", ""],
         ["\n", "\n", "\n"]
     ];
@@ -261,18 +261,20 @@ function encode(version: string, data: string): string {
                 [/··/g, "ᛧ❙"],
                 [/·/g, "ᛧ❘"]
             ];
+
+            let mask_array: string[] = data_array.map(e => e.replace(/[^A-Z]/g,"0").replace(/[A-Z]/g,"1"));
             for (let i = 0; i < data_array.length; i++) {
                 if (mode === "jp") {
-                    if (data_array[i] === "(" || data_array[i] === "（") {
-                        result = result.concat(morse_convert("encode", "jp", data_array.slice(anchor, i + 1))
+                    if (mask_array[i] === "1") {
+                        result = result.concat(morse_convert("encode", "jp", data_array.slice(anchor, i))
                             .map(e => replaces.reduce((a, [f, t]) => a.replace(f, t), e))
                         );
-                        anchor = i + 1;
+                        anchor = i;
                         mode = "intl";
                     }
                 }
                 else if (mode === "intl") {
-                    if (data_array[i] === ")" || data_array[i] === "）") {
+                    if (mask_array[i] === "0") {
                         result = result.concat(morse_convert("encode", "intl", data_array.slice(anchor, i))
                             .map(e => replaces.reduce((a, [f, t]) => a.replace(f, t), e))
                         );
