@@ -1,10 +1,11 @@
 import React from 'react';
+import { ReactNode } from 'react';
 import './App.css';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import Grid from '@mui/material/Unstable_Grid2';
 import { Divider, FormControl, MenuItem, Paper, Select, SelectChangeEvent, TextField, Typography } from '@mui/material';
-import { ReactNode } from 'react';
+import Grid from '@mui/material/Unstable_Grid2';
+import morse_table from './morse_table';
 
 const DarkTheme = createTheme({
     typography: {
@@ -81,13 +82,7 @@ const DarkTheme = createTheme({
     }
 });
 
-function katakana_to_hiragana(str: string): string {
-    return str.replace(/[\u30a1-\u30f6]/g, function (match) {
-        let chr: number = match.charCodeAt(0) - 0x60;
-        return String.fromCharCode(chr);
-    });
-}
-
+/*
 function morse_convert(mode: string, type: string, data: string[]): string[] {
 
     const intl_table: string[][] = [
@@ -220,10 +215,10 @@ function encode(version: string, data: string): string {
     let anchor: number = 0;
     let mode: string = "jp";
     switch (version) {
-        case "morse code intl":
+        case "morse_code_intl":
             return morse_convert("encode", "intl", data.toUpperCase().split("")).join(" ").replace(/ \n |\n | \n/g, "\n").replace(/[ijo]/g, "").trim();
 
-        case "morse code jp":
+        case "morse_code_jp":
             for (let i = 0; i < data_array.length; i++) {
                 if (mode === "jp") {
                     if (data_array[i] === "(" || data_array[i] === "（") {
@@ -246,7 +241,7 @@ function encode(version: string, data: string): string {
             }
             return result.join(" ").replace(/ \n |\n | \n/g, "\n").replace(/[ijo]/g, "").trim();
 
-        case "yv_wave 2023":
+        case "yv_wave_2023":
             const replaces: [RegExp, string][] = [
                 [/------/g, "ᛌ❚❚"],
                 [/-----/g, "ᛌ❚❙"],
@@ -303,10 +298,10 @@ function encode(version: string, data: string): string {
 
 function decode(version: string, data: string): string {
     switch (version) {
-        case "morse code intl":
+        case "morse_code_intl":
             return morse_convert("decode", "intl", data.replace(/\n/g, " \n ").toUpperCase().split(" ")).join("").replace(/ \n |\n | \n/g, "\n").trim();
 
-        case "morse code jp":
+        case "morse_code_jp":
             let data_array: string[] = data.replace(/\n/g, " \n ").toUpperCase().split(" ");
             let result: string[] = [];
             let anchor: number = 0;
@@ -337,7 +332,7 @@ function decode(version: string, data: string): string {
                 .replace(/ \n |\n | \n/g, "\n")
                 .trim();
 
-        case "yv_wave 2023":
+        case "yv_wave_2023":
             const replaces: [RegExp, string][] = [
                 [/ᛌ❚❚/g, "------"],
                 [/ᛌ❚❙/g, "-----"],
@@ -353,19 +348,83 @@ function decode(version: string, data: string): string {
                 [/ᛧ❘/g, "·"]
             ];
 
-            return decode("morse code jp", data.replace(/\n/g, " \n ").split(" ").map(e => replaces.reduce((a, [f, t]) => a.replace(f, t), e)).join(" ").replace(/ \n |\n | \n/g, "\n").replace(/[❘❙❚]/g, ""));
+            return decode("morse_code_jp", data.replace(/\n/g, " \n ").split(" ").map(e => replaces.reduce((a, [f, t]) => a.replace(f, t), e)).join(" ").replace(/ \n |\n | \n/g, "\n").replace(/[❘❙❚]/g, ""));
 
         default:
             return "";
     }
 }
+*/
 
+// 片仮名を平仮名に変換
+function katakana_to_hiragana(str: string): string {
+    return str.replace(/[\u30A1-\u30F6]/g, function (match) {
+        return String.fromCharCode(match.charCodeAt(0) - 0x60);
+    });
+}
+
+// 全角英数字を半角に変換
+function zenkaku_to_hankaku(str: string): string {
+    return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, function (match) {
+        return String.fromCharCode(match.charCodeAt(0) - 0xFEE0);
+    });
+}
+
+// モールス符号のエンコード、デコード
+function intl_morse_encode(input: string) {
+
+}
+function intl_morse_decode(input: string) {
+
+}
+
+function jp_morse_encode(input: string) {
+
+}
+function jp_morse_decode(input: string) {
+
+}
+
+
+
+
+// 文字列を指定のtypeでエンコード
+function encode(type: string, input: string): string {
+    switch (type) {
+        // 国際モールス符号
+        case "morse_code_intl":
+
+            return "";
+        // 和文モールス符号
+        case "morse_code_jp":
+
+            return "";
+        default:
+            return "";
+    }
+}
+
+// 文字列を指定のtypeでデコード
+function decode(type: string, input: string): string {
+    switch (type) {
+        // 国際モールス符号
+        case "morse_code_intl":
+
+            return "";
+        // 和文モールス符号
+        case "morse_code_jp":
+
+            return "";
+        default:
+            return "";
+    }
+}
 
 export default function App(): JSX.Element {
 
-    const [version, setVersion] = React.useState("morse code intl");
-    const HandleVersionChange = (event: SelectChangeEvent) => {
-        setVersion(event.target.value);
+    const [type, setType] = React.useState("morse_code_intl");
+    const HandleTypeChange = (event: SelectChangeEvent) => {
+        setType(event.target.value);
         if (text !== "") {
             setCode(encode(event.target.value, text));
         }
@@ -377,14 +436,14 @@ export default function App(): JSX.Element {
     const [text, setText] = React.useState<string>("");
     const HandleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setText(event.target.value);
-        setCode(encode(version, event.target.value));
+        setCode(encode(type, event.target.value));
 
     };
 
     const [code, setCode] = React.useState<string>("");
     const HandleCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setCode(event.target.value);
-        setText(decode(version, event.target.value));
+        setText(decode(type, event.target.value));
     };
 
     return (
@@ -404,7 +463,7 @@ export default function App(): JSX.Element {
                         justifyContent="center"
                         flexWrap="nowrap"
                         alignItems="flex-start"
-                        //overflow='hidden'
+                    //overflow='hidden'
                     >
                         <Paper
                             elevation={2}
@@ -442,16 +501,16 @@ export default function App(): JSX.Element {
                                     fullWidth
                                 >
                                     <Select
-                                        id="version-select"
-                                        defaultValue={"morse code intl"}
-                                        onChange={HandleVersionChange}
+                                        id="type-select"
+                                        defaultValue={"morse_code_intl"}
+                                        onChange={HandleTypeChange}
                                     >
-                                        <MenuItem value={"morse code intl"}>Morse code (INTL)</MenuItem>
-                                        <MenuItem value={"morse code jp"}>Morse code (JP)</MenuItem>
-                                        <MenuItem value={"yv_wave 2023"}>YV-Wave 2023</MenuItem>
+                                        <MenuItem value={"morse_code_intl"}>Morse code (INTL)</MenuItem>
+                                        <MenuItem value={"morse_code_jp"}>Morse code (JP)</MenuItem>
+                                        <MenuItem value={"yv_wave_2023"}>YV-Wave 2023</MenuItem>
                                         {/*
                                         <MenuItem value={"yv_code 2020"}>Yv-Code 2020</MenuItem>
-                                        <MenuItem value={"yv_wave 2023"}>Yv-Wave 2023</MenuItem>
+                                        <MenuItem value={"yv_wave_2023"}>Yv-Wave 2023</MenuItem>
                                         <MenuItem value={"yv_strata 2023"}>Yv-Strata 2023</MenuItem>
                                         */}
                                     </Select>
