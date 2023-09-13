@@ -370,80 +370,44 @@ function zenkaku_to_hankaku(str: string): string {
     });
 }
 
-// モールス符号のエンコード、デコード
-function intl_morse_encode(input: string) {
-
-}
-function intl_morse_decode(input: string) {
-
+interface Codec {
+    encode(): string;
+    decode(): string;
 }
 
-function jp_morse_encode(input: string) {
-
-}
-function jp_morse_decode(input: string) {
-
-}
-
-
-
-
-// 文字列を指定のtypeでエンコード
-function encode(type: string, input: string): string {
-    switch (type) {
-        // 国際モールス符号
-        case "morse_code_intl":
-
-            return "";
-        // 和文モールス符号
-        case "morse_code_jp":
-
-            return "";
-        default:
-            return "";
+class IntlMorseCodec implements Codec {
+    encode(): string {
+        return "";
     }
-}
-
-// 文字列を指定のtypeでデコード
-function decode(type: string, input: string): string {
-    switch (type) {
-        // 国際モールス符号
-        case "morse_code_intl":
-
-            return "";
-        // 和文モールス符号
-        case "morse_code_jp":
-
-            return "";
-        default:
-            return "";
+    decode(): string {
+        return "";
     }
 }
 
 export default function App(): JSX.Element {
 
-    const [type, setType] = React.useState("morse_code_intl");
+    const [type, setType] = React.useState("0");
     const HandleTypeChange = (event: SelectChangeEvent) => {
         setType(event.target.value);
         if (text !== "") {
-            setCode(encode(event.target.value, text));
+            //setCode(encode(event.target.value, text));
         }
         else {
-            setText(decode(event.target.value, code));
+            //setText(decode(event.target.value, code));
         }
     };
 
     const [text, setText] = React.useState<string>("");
     const HandleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setText(event.target.value);
-        setCode(encode(type, event.target.value));
+        //setCode(encode(type, event.target.value));
 
     };
 
     const [code, setCode] = React.useState<string>("");
     const HandleCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setCode(event.target.value);
-        setText(decode(type, event.target.value));
+        //setText(decode(type, event.target.value));
     };
 
     return (
@@ -502,12 +466,12 @@ export default function App(): JSX.Element {
                                 >
                                     <Select
                                         id="type-select"
-                                        defaultValue={"morse_code_intl"}
+                                        defaultValue={"0"}
                                         onChange={HandleTypeChange}
                                     >
-                                        <MenuItem value={"morse_code_intl"}>Morse code (INTL)</MenuItem>
-                                        <MenuItem value={"morse_code_jp"}>Morse code (JP)</MenuItem>
-                                        <MenuItem value={"yv_wave_2023"}>YV-Wave 2023</MenuItem>
+                                        <MenuItem value={"0"}>Morse code (INTL)</MenuItem>
+                                        <MenuItem value={"1"}>Morse code (JP)</MenuItem>
+                                        <MenuItem value={"2"}>YV-Wave 2023</MenuItem>
                                         {/*
                                         <MenuItem value={"yv_code 2020"}>Yv-Code 2020</MenuItem>
                                         <MenuItem value={"yv_wave_2023"}>Yv-Wave 2023</MenuItem>
