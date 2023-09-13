@@ -363,24 +363,36 @@ function katakana_to_hiragana(str: string): string {
     });
 }
 
-// 全角英数字を半角に変換
+// 全角の英数字と記号を半角に変換
 function zenkaku_to_hankaku(str: string): string {
-    return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, function (match) {
+    return str.replace(/[Ａ-Ｚａ-ｚ０-９（）]/g, function (match) {
         return String.fromCharCode(match.charCodeAt(0) - 0xFEE0);
     });
 }
 
+// コーデックのインターフェース
 interface Codec {
-    encode(): string;
-    decode(): string;
+    encode(input: string): string;
+    decode(input: string): string;
 }
 
+// 国際モールス符号のコーデック
 class IntlMorseCodec implements Codec {
-    encode(): string {
-        return "";
+    // エンコード
+    encode(input: string): string {
+        const unified_text = zenkaku_to_hankaku(input).toUpperCase();
+        const chars = unified_text.split("");
+        const morses = chars.map(e => morse_table.intl.find(([k,]) => (k === e))?.[1] ?? "⛝");
+        const morse_text = morses.join(" ");
+        return morse_text.replace(/ \n |\n | \n/g, "\n").trim();
     }
-    decode(): string {
-        return "";
+    // デコード
+    decode(input: string): string {
+        const unified_text = input.toUpperCase();
+        const morses = unified_text.replace(/\n/g, " \n ").split(" ");
+        const chars = morses.map(e => morse_table.intl.find(([, k]) => (k === e))?.[0] ?? "⛝");
+        const text = chars.join("");
+        return text.replace(/ \n |\n | \n/g, "\n").trim();
     }
 }
 
@@ -390,24 +402,27 @@ export default function App(): JSX.Element {
     const HandleTypeChange = (event: SelectChangeEvent) => {
         setType(event.target.value);
         if (text !== "") {
-            //setCode(encode(event.target.value, text));
+            const codec: Codec = [new IntlMorseCodec()][Number(event.target.value)];
+            setCode(codec.encode(text));
         }
         else {
-            //setText(decode(event.target.value, code));
+            const codec: Codec = [new IntlMorseCodec()][Number(event.target.value)];
+            setText(codec.decode(code));
         }
     };
 
     const [text, setText] = React.useState<string>("");
     const HandleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setText(event.target.value);
-        //setCode(encode(type, event.target.value));
-
+        const codec: Codec = [new IntlMorseCodec()][Number(type)];
+        setCode(codec.encode(event.target.value));
     };
 
     const [code, setCode] = React.useState<string>("");
     const HandleCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setCode(event.target.value);
-        //setText(decode(type, event.target.value));
+        const codec: Codec = [new IntlMorseCodec()][Number(type)];
+        setText(codec.decode(event.target.value));
     };
 
     return (
@@ -470,9 +485,9 @@ export default function App(): JSX.Element {
                                         onChange={HandleTypeChange}
                                     >
                                         <MenuItem value={"0"}>Morse code (INTL)</MenuItem>
+                                        {/*
                                         <MenuItem value={"1"}>Morse code (JP)</MenuItem>
                                         <MenuItem value={"2"}>YV-Wave 2023</MenuItem>
-                                        {/*
                                         <MenuItem value={"yv_code 2020"}>Yv-Code 2020</MenuItem>
                                         <MenuItem value={"yv_wave_2023"}>Yv-Wave 2023</MenuItem>
                                         <MenuItem value={"yv_strata 2023"}>Yv-Strata 2023</MenuItem>
