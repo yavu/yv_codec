@@ -5,7 +5,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { Divider, FormControl, MenuItem, Paper, Select, SelectChangeEvent, TextField, Typography } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
-import morse_table from './morse_table';
+import { morse_table } from './const';
 
 const DarkTheme = createTheme({
     typography: {
