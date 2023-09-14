@@ -5,7 +5,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { Divider, FormControl, MenuItem, Paper, Select, SelectChangeEvent, TextField, Typography } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
-import { morse_table } from './const';
+import { morse_table, yv_table } from './const';
 
 const DarkTheme = createTheme({
     typography: {
@@ -298,17 +298,36 @@ class JpMorseCodec implements Codec {
     }
 }
 
+// YV-Wave 2023のコーデック
+class YvWave2023Codec implements Codec {
+    // エンコード
+    encode(input: string): string {
+        const unified_text = zenkaku_to_hankaku(input).normalize("NFD").toUpperCase();
+        const chars = unified_text.split("");
+        const morses = chars.map(e => yv_table.yv_wave_2023.find(([k,]) => (k === e))?.[1] ?? "⛝");
+        const code_text = morses.join(" ");
+        return code_text.replace(/ *\n */g, "\n").trim();
+    }
+    // デコード
+    decode(input: string): string {
+        const unified_text = input.toUpperCase();
+        const codes = unified_text.replace(/\n/g, " \n ").split(" ");
+        const chars = codes.map(e => yv_table.yv_wave_2023.find(([, k]) => (k === e))?.[0] ?? "⛝");
+        const text = chars.join("");
+        return text.normalize("NFC").replace(/ *\n */g, "\n").trim();
+    }
+}
 export default function App(): JSX.Element {
 
     const [type, setType] = React.useState("0");
     const HandleTypeChange = (event: SelectChangeEvent) => {
         setType(event.target.value);
         if (text !== "") {
-            const codec: Codec = [new IntlMorseCodec(), new JpMorseCodec()][Number(event.target.value)];
+            const codec: Codec = [new IntlMorseCodec(), new JpMorseCodec(), new YvWave2023Codec()][Number(event.target.value)];
             setCode(codec.encode(text));
         }
         else {
-            const codec: Codec = [new IntlMorseCodec(), new JpMorseCodec()][Number(event.target.value)];
+            const codec: Codec = [new IntlMorseCodec(), new JpMorseCodec(), new YvWave2023Codec()][Number(event.target.value)];
             setText(codec.decode(code));
         }
     };
@@ -316,14 +335,14 @@ export default function App(): JSX.Element {
     const [text, setText] = React.useState<string>("");
     const HandleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setText(event.target.value);
-        const codec: Codec = [new IntlMorseCodec(), new JpMorseCodec()][Number(type)];
+        const codec: Codec = [new IntlMorseCodec(), new JpMorseCodec(), new YvWave2023Codec()][Number(type)];
         setCode(codec.encode(event.target.value));
     };
 
     const [code, setCode] = React.useState<string>("");
     const HandleCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setCode(event.target.value);
-        const codec: Codec = [new IntlMorseCodec(), new JpMorseCodec()][Number(type)];
+        const codec: Codec = [new IntlMorseCodec(), new JpMorseCodec(), new YvWave2023Codec()][Number(type)];
         setText(codec.decode(event.target.value));
     };
 
@@ -388,10 +407,9 @@ export default function App(): JSX.Element {
                                     >
                                         <MenuItem value={"0"}>Morse code (INTL)</MenuItem>
                                         <MenuItem value={"1"}>Morse code (JP)</MenuItem>
-                                        {/*
                                         <MenuItem value={"2"}>YV-Wave 2023</MenuItem>
+                                        {/*
                                         <MenuItem value={"yv_code 2020"}>Yv-Code 2020</MenuItem>
-                                        <MenuItem value={"yv_wave_2023"}>Yv-Wave 2023</MenuItem>
                                         <MenuItem value={"yv_strata 2023"}>Yv-Strata 2023</MenuItem>
                                         */}
                                     </Select>
