@@ -256,30 +256,6 @@ class IntlMorseCodec implements Codec {
     encode(input: string): string {
         const unified_text = zenkaku_to_hankaku(input).toUpperCase();
         const chars = unified_text.split("");
-        const morses = [];
-        for (let t = false, i = chars.indexOf("("); i !== -1; t = !t , i = chars.slice(i).indexOf(t ? ")" : "(")) {
-            chars.slice(i)
-            morses.push(...     chars.map(e => (t ? morse_table.intl : morse_table.jp).find(([k,]) => (k === e))?.[1] ?? "⛝"));
-        }
-        const morse_text = morses.join(" ");
-        return morse_text.replace(/ \n |\n | \n/g, "\n").trim();
-    }
-    // デコード
-    decode(input: string): string {
-        const unified_text = input.toUpperCase();
-        const morses = unified_text.replace(/\n/g, " \n ").split(" ");
-        const chars = morses.map(e => morse_table.intl.find(([, k]) => (k === e))?.[0] ?? "⛝");
-        const text = chars.join("");
-        return text.replace(/ \n |\n | \n/g, "\n").trim();
-    }
-}
-
-// 国際モールス符号のコーデック
-class JpMorseCodec implements Codec {
-    // エンコード
-    encode(input: string): string {
-        const unified_text = zenkaku_to_hankaku(input).toUpperCase();
-        const chars = unified_text.split("");
         const morses = chars.map(e => morse_table.intl.find(([k,]) => (k === e))?.[1] ?? "⛝");
         const morse_text = morses.join(" ");
         return morse_text.replace(/ \n |\n | \n/g, "\n").trim();
@@ -293,6 +269,33 @@ class JpMorseCodec implements Codec {
         return text.replace(/ \n |\n | \n/g, "\n").trim();
     }
 }
+
+// 和文モールス符号のコーデック
+class JpMorseCodec implements Codec {
+    // エンコード
+    encode(input: string): string {
+        const unified_text = zenkaku_to_hankaku(input).toUpperCase();
+        const chars = unified_text.split("");
+        const morses = [];
+        for (let t = false, i = chars.includes("(") ? chars.indexOf("(") : chars.length; chars.length !== 0; t = !t, i = chars.includes(t ? ")" : "(") ? chars.indexOf(t ? ")" : "(") : chars.length) {
+            morses.push(...chars.splice(0, i).map(e => (t ? morse_table.intl : morse_table.jp).find(([k,]) => (k === e))?.[1] ?? "⛝"));
+        }
+        const morse_text = morses.join(" ");
+        return morse_text.replace(/ \n |\n | \n/g, "\n").trim();
+    }
+    // デコード
+    decode(input: string): string {
+        const unified_text = input.toUpperCase();
+        const morses = unified_text.replace(/\n/g, " \n ").split(" ");
+        const chars = [];
+        for (let t = false, i = morses.includes("-·--·-") ? morses.indexOf("-·--·-") : morses.length; morses.length !== 0; t = !t, i = morses.includes(t ? "·-··-·" : "-·--·-") ? morses.indexOf(t ? "·-··-·" : "-·--·-") : morses.length) {
+            chars.push(...morses.splice(0, i).map(e => (t ? morse_table.intl : morse_table.jp).find(([, k]) => (k === e))?.[0] ?? "⛝"));
+        }
+        const text = chars.join("");
+        return text.replace(/ \n |\n | \n/g, "\n").trim();
+    }
+}
+
 export default function App(): JSX.Element {
 
     const [type, setType] = React.useState("0");
