@@ -277,7 +277,8 @@ class JpMorseCodec implements Codec {
         const unified_text = zenkaku_to_hankaku(input).toUpperCase();
         const chars = unified_text.split("");
         const morses = [];
-        for (let t = false, i = chars.includes("(") ? chars.indexOf("(") : chars.length; chars.length !== 0; t = !t, i = chars.includes(t ? ")" : "(") ? chars.indexOf(t ? ")" : "(") : chars.length) {
+        const delimiter = ["(",")"];
+        for (let t = false, i = chars.includes(delimiter[0]) ? chars.indexOf(delimiter[0]) : chars.length; chars.length !== 0; t = !t, i = chars.includes(delimiter[Number(t)]) ? chars.indexOf(delimiter[Number(t)]) : chars.length) {
             morses.push(...chars.splice(0, i).map(e => (t ? morse_table.intl : morse_table.jp).find(([k,]) => (k === e))?.[1] ?? "⛝"));
         }
         const morse_text = morses.join(" ");
@@ -288,7 +289,8 @@ class JpMorseCodec implements Codec {
         const unified_text = input.toUpperCase();
         const morses = unified_text.replace(/\n/g, " \n ").split(" ");
         const chars = [];
-        for (let t = false, i = morses.includes("-·--·-") ? morses.indexOf("-·--·-") : morses.length; morses.length !== 0; t = !t, i = morses.includes(t ? "·-··-·" : "-·--·-") ? morses.indexOf(t ? "·-··-·" : "-·--·-") : morses.length) {
+        const delimiter = ["-·--·-","·-··-·"];
+        for (let t = false, i = morses.includes(delimiter[0]) ? morses.indexOf(delimiter[0]) : morses.length; morses.length !== 0; t = !t, i = morses.includes(delimiter[Number(t)]) ? morses.indexOf(delimiter[Number(t)]) : morses.length) {
             chars.push(...morses.splice(0, i).map(e => (t ? morse_table.intl : morse_table.jp).find(([, k]) => (k === e))?.[0] ?? "⛝"));
         }
         const text = chars.join("");
