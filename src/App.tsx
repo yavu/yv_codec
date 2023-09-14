@@ -258,7 +258,7 @@ class IntlMorseCodec implements Codec {
         const chars = unified_text.split("");
         const morses = chars.map(e => morse_table.intl.find(([k,]) => (k === e))?.[1] ?? "⛝");
         const morse_text = morses.join(" ");
-        return morse_text.replace(/ \n |\n | \n/g, "\n").trim();
+        return morse_text.replace(/ *\n */g, "\n").trim();
     }
     // デコード
     decode(input: string): string {
@@ -266,7 +266,7 @@ class IntlMorseCodec implements Codec {
         const morses = unified_text.replace(/\n/g, " \n ").split(" ");
         const chars = morses.map(e => morse_table.intl.find(([, k]) => (k === e))?.[0] ?? "⛝");
         const text = chars.join("");
-        return text.replace(/ \n |\n | \n/g, "\n").trim();
+        return text.replace(/ *\n */g, "\n").trim();
     }
 }
 
@@ -281,7 +281,7 @@ class JpMorseCodec implements Codec {
             morses.push(...chars.splice(0, i).map(e => (t ? morse_table.intl : morse_table.jp).find(([k,]) => (k === e))?.[1] ?? "⛝"));
         }
         const morse_text = morses.join(" ");
-        return morse_text.replace(/ \n |\n | \n/g, "\n").trim();
+        return morse_text.replace(/ *\n */g, "\n").trim();
     }
     // デコード
     decode(input: string): string {
@@ -292,7 +292,7 @@ class JpMorseCodec implements Codec {
             chars.push(...morses.splice(0, i).map(e => (t ? morse_table.intl : morse_table.jp).find(([, k]) => (k === e))?.[0] ?? "⛝"));
         }
         const text = chars.join("");
-        return text.replace(/ \n |\n | \n/g, "\n").trim();
+        return text.replace(/ *\n */g, "\n").trim();
     }
 }
 
