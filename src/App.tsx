@@ -256,7 +256,11 @@ class IntlMorseCodec implements Codec {
     encode(input: string): string {
         const unified_text = zenkaku_to_hankaku(input).toUpperCase();
         const chars = unified_text.split("");
-        const morses = chars.map(e => morse_table.intl.find(([k,]) => (k === e))?.[1] ?? "⛝");
+        const morses = [];
+        for (let t = false, i = chars.indexOf("("); i !== -1; t = !t , i = chars.slice(i).indexOf(t ? ")" : "(")) {
+            chars.slice(i)
+            morses.push(...     chars.map(e => (t ? morse_table.intl : morse_table.jp).find(([k,]) => (k === e))?.[1] ?? "⛝"));
+        }
         const morse_text = morses.join(" ");
         return morse_text.replace(/ \n |\n | \n/g, "\n").trim();
     }
@@ -270,17 +274,36 @@ class IntlMorseCodec implements Codec {
     }
 }
 
+// 国際モールス符号のコーデック
+class JpMorseCodec implements Codec {
+    // エンコード
+    encode(input: string): string {
+        const unified_text = zenkaku_to_hankaku(input).toUpperCase();
+        const chars = unified_text.split("");
+        const morses = chars.map(e => morse_table.intl.find(([k,]) => (k === e))?.[1] ?? "⛝");
+        const morse_text = morses.join(" ");
+        return morse_text.replace(/ \n |\n | \n/g, "\n").trim();
+    }
+    // デコード
+    decode(input: string): string {
+        const unified_text = input.toUpperCase();
+        const morses = unified_text.replace(/\n/g, " \n ").split(" ");
+        const chars = morses.map(e => morse_table.intl.find(([, k]) => (k === e))?.[0] ?? "⛝");
+        const text = chars.join("");
+        return text.replace(/ \n |\n | \n/g, "\n").trim();
+    }
+}
 export default function App(): JSX.Element {
 
     const [type, setType] = React.useState("0");
     const HandleTypeChange = (event: SelectChangeEvent) => {
         setType(event.target.value);
         if (text !== "") {
-            const codec: Codec = [new IntlMorseCodec()][Number(event.target.value)];
+            const codec: Codec = [new IntlMorseCodec(), new JpMorseCodec()][Number(event.target.value)];
             setCode(codec.encode(text));
         }
         else {
-            const codec: Codec = [new IntlMorseCodec()][Number(event.target.value)];
+            const codec: Codec = [new IntlMorseCodec(), new JpMorseCodec()][Number(event.target.value)];
             setText(codec.decode(code));
         }
     };
@@ -288,14 +311,14 @@ export default function App(): JSX.Element {
     const [text, setText] = React.useState<string>("");
     const HandleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setText(event.target.value);
-        const codec: Codec = [new IntlMorseCodec()][Number(type)];
+        const codec: Codec = [new IntlMorseCodec(), new JpMorseCodec()][Number(type)];
         setCode(codec.encode(event.target.value));
     };
 
     const [code, setCode] = React.useState<string>("");
     const HandleCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setCode(event.target.value);
-        const codec: Codec = [new IntlMorseCodec()][Number(type)];
+        const codec: Codec = [new IntlMorseCodec(), new JpMorseCodec()][Number(type)];
         setText(codec.decode(event.target.value));
     };
 
@@ -359,8 +382,8 @@ export default function App(): JSX.Element {
                                         onChange={HandleTypeChange}
                                     >
                                         <MenuItem value={"0"}>Morse code (INTL)</MenuItem>
-                                        {/*
                                         <MenuItem value={"1"}>Morse code (JP)</MenuItem>
+                                        {/*
                                         <MenuItem value={"2"}>YV-Wave 2023</MenuItem>
                                         <MenuItem value={"yv_code 2020"}>Yv-Code 2020</MenuItem>
                                         <MenuItem value={"yv_wave_2023"}>Yv-Wave 2023</MenuItem>
