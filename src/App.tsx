@@ -274,7 +274,7 @@ class IntlMorseCodec implements Codec {
 class JpMorseCodec implements Codec {
     // エンコード
     encode(input: string): string {
-        const unified_text = zenkaku_to_hankaku(input).toUpperCase();
+        const unified_text = zenkaku_to_hankaku(input).normalize("NFD").toUpperCase();
         const chars = unified_text.split("");
         const morses = [];
         const delimiter = ["(",")"];
@@ -294,7 +294,7 @@ class JpMorseCodec implements Codec {
             chars.push(...morses.splice(0, i).map(e => (t ? morse_table.intl : morse_table.jp).find(([, k]) => (k === e))?.[0] ?? "⛝"));
         }
         const text = chars.join("");
-        return text.replace(/ *\n */g, "\n").trim();
+        return text.normalize("NFC").replace(/ *\n */g, "\n").trim();
     }
 }
 
