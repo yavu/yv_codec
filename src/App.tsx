@@ -82,158 +82,10 @@ const DarkTheme = createTheme({
     }
 });
 
-/*
-function encode(version: string, data: string): string {
-    let data_array: string[] = katakana_to_hiragana(data).toUpperCase().normalize("NFD").split("");//.map(v => v === "\u3099" ? "゛" : v).map(v => v === "\u309A" ? "゜" : v);
-    let result: string[] = [];
-    let anchor: number = 0;
-    let mode: string = "jp";
-    switch (version) {
-        case "morse_code_intl":
-            return morse_convert("encode", "intl", data.toUpperCase().split("")).join(" ").replace(/ \n |\n | \n/g, "\n").replace(/[ijo]/g, "").trim();
-
-        case "morse_code_jp":
-            for (let i = 0; i < data_array.length; i++) {
-                if (mode === "jp") {
-                    if (data_array[i] === "(" || data_array[i] === "（") {
-                        result = result.concat(morse_convert("encode", "jp", data_array.slice(anchor, i + 1)));
-                        anchor = i + 1;
-                        mode = "intl";
-                    }
-                }
-                else if (mode === "intl") {
-                    if (data_array[i] === ")" || data_array[i] === "）") {
-                        result = result.concat(morse_convert("encode", "intl", data_array.slice(anchor, i)));
-                        anchor = i;
-                        mode = "jp";
-                    }
-                }
-
-                if (i + 1 === data_array.length) {
-                    result = result.concat(morse_convert("encode", mode, data_array.slice(anchor)));
-                }
-            }
-            return result.join(" ").replace(/ \n |\n | \n/g, "\n").replace(/[ijo]/g, "").trim();
-
-        case "yv_wave_2023":
-            const replaces: [RegExp, string][] = [
-                [/------/g, "ᛌ❚❚"],
-                [/-----/g, "ᛌ❚❙"],
-                [/----/g, "ᛌ❚❘"],
-                [/---/g, "ᛌ❚"],
-                [/--/g, "ᛌ❙"],
-                [/-/g, "ᛌ❘"],
-                [/······/g, "ᛧ❚❚"],
-                [/·····/g, "ᛧ❚❙"],
-                [/····/g, "ᛧ❚❘"],
-                [/···/g, "ᛧ❚"],
-                [/··/g, "ᛧ❙"],
-                [/·/g, "ᛧ❘"]
-            ];
-
-            let mask_array: string[] = data_array.map(e => e.replace(/[^A-Z]/g,"0").replace(/[A-Z]/g,"1"));
-            for (let i = 0; i < data_array.length; i++) {
-                if (mode === "jp") {
-                    if (mask_array[i] === "1") {
-                        result = result.concat(morse_convert("encode", "jp", data_array.slice(anchor, i))
-                            .map(e => replaces.reduce((a, [f, t]) => a.replace(f, t), e))
-                        );
-                        anchor = i;
-                        mode = "intl";
-                    }
-                }
-                else if (mode === "intl") {
-                    if (mask_array[i] === "0") {
-                        result = result.concat(morse_convert("encode", "intl", data_array.slice(anchor, i))
-                            .map(e => replaces.reduce((a, [f, t]) => a.replace(f, t), e))
-                        );
-                        anchor = i;
-                        mode = "jp";
-                    }
-                }
-
-                if (i + 1 === data_array.length) {
-                    result = result.concat(morse_convert("encode", mode, data_array.slice(anchor))
-                        .map(e => replaces.reduce((a, [f, t]) => a.replace(f, t), e))
-                    );
-                }
-            }
-            return result.join(" ")
-                .replace(/ \n |\n | \n/g, "\n")
-                .replace(/i/g, "❚")
-                .replace(/j/g, "❘")
-                .replace(/o/g, "❙")
-                .trim();
-
-        default:
-            return "";
-    }
-}
-
-function decode(version: string, data: string): string {
-    switch (version) {
-        case "morse_code_intl":
-            return morse_convert("decode", "intl", data.replace(/\n/g, " \n ").toUpperCase().split(" ")).join("").replace(/ \n |\n | \n/g, "\n").trim();
-
-        case "morse_code_jp":
-            let data_array: string[] = data.replace(/\n/g, " \n ").toUpperCase().split(" ");
-            let result: string[] = [];
-            let anchor: number = 0;
-            let mode: string = "jp";
-            for (let i = 0; i < data_array.length; i++) {
-                if (mode === "jp") {
-                    if (data_array[i] === "-·--·-") {
-                        result = result.concat(morse_convert("decode", "jp", data_array.slice(anchor, i + 1)));
-                        anchor = i + 1;
-                        mode = "intl";
-                    }
-                }
-                else if (mode === "intl") {
-                    if (data_array[i] === "·-··-·") {
-                        result = result.concat(morse_convert("decode", "intl", data_array.slice(anchor, i)));
-                        anchor = i;
-                        mode = "jp";
-                    }
-                }
-
-                if (i + 1 === data_array.length) {
-                    result = result.concat(morse_convert("decode", mode, data_array.slice(anchor)));
-                }
-            }
-            //console.log("がぎぐあご".normalize("NFD").replace(/"(\u3099|\u309A)"/g, (e) => {return String.fromCharCode(e.charCodeAt(0) + 0x02)}));
-            return result.join("")
-                .normalize("NFC")
-                .replace(/ \n |\n | \n/g, "\n")
-                .trim();
-
-        case "yv_wave_2023":
-            const replaces: [RegExp, string][] = [
-                [/ᛌ❚❚/g, "------"],
-                [/ᛌ❚❙/g, "-----"],
-                [/ᛌ❚❘/g, "----"],
-                [/ᛌ❚/g, "---"],
-                [/ᛌ❙/g, "--"],
-                [/ᛌ❘/g, "-"],
-                [/ᛧ❚❚/g, "······"],
-                [/ᛧ❚❙/g, "·····"],
-                [/ᛧ❚❘/g, "····"],
-                [/ᛧ❚/g, "···"],
-                [/ᛧ❙/g, "··"],
-                [/ᛧ❘/g, "·"]
-            ];
-
-            return decode("morse_code_jp", data.replace(/\n/g, " \n ").split(" ").map(e => replaces.reduce((a, [f, t]) => a.replace(f, t), e)).join(" ").replace(/ \n |\n | \n/g, "\n").replace(/[❘❙❚]/g, ""));
-
-        default:
-            return "";
-    }
-}
-*/
-
 // 片仮名を平仮名に変換
 function katakana_to_hiragana(str: string): string {
-    return str.replace(/[\u30A1-\u30F6]/g, function (match) {
-        return String.fromCharCode(match.charCodeAt(0) - 0x60);
+    return str.normalize("NFD").replace(/[\u30A1-\u30F6]/g, function (match) {
+        return String.fromCharCode(match.charCodeAt(0) - 0x60).normalize("NFC");
     });
 }
 
@@ -274,7 +126,7 @@ class IntlMorseCodec implements Codec {
 class JpMorseCodec implements Codec {
     // エンコード
     encode(input: string): string {
-        const unified_text = zenkaku_to_hankaku(input).normalize("NFD").toUpperCase();
+        const unified_text = katakana_to_hiragana(zenkaku_to_hankaku(input)).normalize("NFD").toUpperCase();
         const chars = unified_text.split("");
         const morses = [];
         const delimiter = ["(",")"];
@@ -302,7 +154,7 @@ class JpMorseCodec implements Codec {
 class YvWave2023Codec implements Codec {
     // エンコード
     encode(input: string): string {
-        const unified_text = zenkaku_to_hankaku(input).normalize("NFD").toUpperCase();
+        const unified_text = katakana_to_hiragana(zenkaku_to_hankaku(input)).normalize("NFD").toUpperCase();
         const chars = unified_text.split("");
         const morses = chars.map(e => yv_table.yv_wave_2023.find(([k,]) => (k === e))?.[1] ?? "⛝");
         const code_text = morses.join(" ");
@@ -317,6 +169,7 @@ class YvWave2023Codec implements Codec {
         return text.normalize("NFC").replace(/ *\n */g, "\n").trim();
     }
 }
+
 export default function App(): JSX.Element {
 
     const [type, setType] = React.useState("0");
