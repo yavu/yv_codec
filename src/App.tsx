@@ -129,7 +129,7 @@ class JpMorseCodec implements Codec {
         const unified_text = katakana_to_hiragana(zenkaku_to_hankaku(input)).normalize("NFD").toUpperCase();
         const chars = unified_text.split("");
         const morses = [];
-        const delimiter = ["(",")"];
+        const delimiter = ["(", ")"];
         for (let t = false, i = chars.includes(delimiter[0]) ? chars.indexOf(delimiter[0]) : chars.length; chars.length !== 0; t = !t, i = chars.includes(delimiter[Number(t)]) ? chars.indexOf(delimiter[Number(t)]) : chars.length) {
             morses.push(...chars.splice(0, i).map(e => (t ? morse_table.intl : morse_table.jp).find(([k,]) => (k === e))?.[1] ?? "⛝"));
         }
@@ -141,7 +141,7 @@ class JpMorseCodec implements Codec {
         const unified_text = input.toUpperCase();
         const morses = unified_text.replace(/\n/g, " \n ").split(" ");
         const chars = [];
-        const delimiter = ["-·--·-","·-··-·"];
+        const delimiter = ["-·--·-", "·-··-·"];
         for (let t = false, i = morses.includes(delimiter[0]) ? morses.indexOf(delimiter[0]) : morses.length; morses.length !== 0; t = !t, i = morses.includes(delimiter[Number(t)]) ? morses.indexOf(delimiter[Number(t)]) : morses.length) {
             chars.push(...morses.splice(0, i).map(e => (t ? morse_table.intl : morse_table.jp).find(([, k]) => (k === e))?.[0] ?? "⛝"));
         }
@@ -183,6 +183,16 @@ export default function App(): JSX.Element {
             const codec: Codec = [new IntlMorseCodec(), new JpMorseCodec(), new YvWave2023Codec()][Number(event.target.value)];
             setText(codec.decode(code));
         }
+    };
+
+    const [short_char, setShortChar] = React.useState<string>("·");
+    const HandleShortCharChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setShortChar(event.target.value);
+    };
+
+    const [long_char, setLongChar] = React.useState<string>("-");
+    const HandleLongCharChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setLongChar(event.target.value);
     };
 
     const [text, setText] = React.useState<string>("");
@@ -274,12 +284,45 @@ export default function App(): JSX.Element {
                                 >
                                     Convert
                                 </Typography>
+                                <Grid
+                                    container
+                                    direction="row"
+                                    justifyContent="center"
+                                    flexWrap="nowrap"
+                                    alignItems="flex-start"
+                                    gap={DarkTheme.spacing(1)}
+                                >
+                                    <TextField
+                                        defaultValue={"·"}
+                                        label="Short"
+                                        size="small"
+                                        margin="dense"
+                                        multiline
+                                        maxRows={8}
+                                        value={short_char}
+                                        fullWidth
+                                        onChange={HandleShortCharChange}
+                                        sx={{
+                                            display: `${Number(type) < 2 ? "block" : "none"}`
+                                        }}
+                                    />
+                                    <TextField
+                                        defaultValue={"-"}
+                                        label="Long"
+                                        size="small"
+                                        margin="dense"
+                                        value={long_char}
+                                        fullWidth
+                                        onChange={HandleLongCharChange}
+                                        sx={{
+                                            display: `${Number(type) < 2 ? "block" : "none"}`
+                                        }}
+                                    />
+                                </Grid>
                                 <TextField
                                     label="Text"
                                     size="small"
                                     margin="dense"
-                                    multiline
-                                    maxRows={8}
                                     value={text}
                                     fullWidth
                                     onChange={HandleTextChange}
