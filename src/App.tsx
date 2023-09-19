@@ -98,12 +98,14 @@ function zenkaku_to_hankaku(str: string): string {
 
 // コーデックのインターフェース
 interface Codec {
+    name: string;
     encode(input: string): string;
     decode(input: string): string;
 }
 
 // 国際モールス符号のコーデック
 class IntlMorseCodec implements Codec {
+    name = "Morse code (INTL)";
     // エンコード
     encode(input: string): string {
         const unified_text = zenkaku_to_hankaku(input).toUpperCase();
@@ -124,6 +126,7 @@ class IntlMorseCodec implements Codec {
 
 // 和文モールス符号のコーデック
 class JpMorseCodec implements Codec {
+    name = "Morse code (JP)";
     // エンコード
     encode(input: string): string {
         const unified_text = katakana_to_hiragana(zenkaku_to_hankaku(input)).normalize("NFD").toUpperCase();
@@ -152,6 +155,7 @@ class JpMorseCodec implements Codec {
 
 // YV-Wave 2023のコーデック
 class YvWave2023Codec implements Codec {
+    name = "YV-Wave 2023";
     // エンコード
     encode(input: string): string {
         const unified_text = katakana_to_hiragana(zenkaku_to_hankaku(input)).normalize("NFD").toUpperCase();
@@ -171,18 +175,13 @@ class YvWave2023Codec implements Codec {
 }
 
 export default function App(): JSX.Element {
+    const codecs = [new IntlMorseCodec(), new JpMorseCodec(), new YvWave2023Codec()];
 
     const [type, setType] = React.useState("0");
     const HandleTypeChange = (event: SelectChangeEvent) => {
         setType(event.target.value);
-        if (text !== "") {
-            const codec: Codec = [new IntlMorseCodec(), new JpMorseCodec(), new YvWave2023Codec()][Number(event.target.value)];
-            setCode(codec.encode(text));
-        }
-        else {
-            const codec: Codec = [new IntlMorseCodec(), new JpMorseCodec(), new YvWave2023Codec()][Number(event.target.value)];
-            setText(codec.decode(code));
-        }
+        const codec: Codec = [new IntlMorseCodec(), new JpMorseCodec(), new YvWave2023Codec()][Number(event.target.value)];
+        text !== "" ? setCode(codec.encode(text)) : setText(codec.decode(code));
     };
 
     const [short_char, setShortChar] = React.useState<string>("·");
@@ -208,6 +207,12 @@ export default function App(): JSX.Element {
         const codec: Codec = [new IntlMorseCodec(), new JpMorseCodec(), new YvWave2023Codec()][Number(type)];
         setText(codec.decode(event.target.value));
     };
+
+    const menu_items = codecs.map((codec, index) => {
+        return <MenuItem key={index} value={index}>
+            {codec.name}
+        </MenuItem>
+    })
 
     return (
         <>
@@ -268,13 +273,7 @@ export default function App(): JSX.Element {
                                         defaultValue={"0"}
                                         onChange={HandleTypeChange}
                                     >
-                                        <MenuItem value={"0"}>Morse code (INTL)</MenuItem>
-                                        <MenuItem value={"1"}>Morse code (JP)</MenuItem>
-                                        <MenuItem value={"2"}>YV-Wave 2023</MenuItem>
-                                        {/*
-                                        <MenuItem value={"yv_code 2020"}>Yv-Code 2020</MenuItem>
-                                        <MenuItem value={"yv_strata 2023"}>Yv-Strata 2023</MenuItem>
-                                        */}
+                                        {menu_items}
                                     </Select>
                                 </FormControl>
                             </PropertyWrapper>
@@ -364,4 +363,3 @@ function PropertyWrapper({ children }: Props): JSX.Element {
         </Paper>
     )
 }
-
