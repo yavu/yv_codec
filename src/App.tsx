@@ -121,7 +121,7 @@ export default function App(): JSX.Element {
                                 >
                                     Convert
                                 </Typography>
-                                <Grid
+                                {/* <Grid
                                     container
                                     direction="row"
                                     justifyContent="center"
@@ -155,7 +155,7 @@ export default function App(): JSX.Element {
                                             display: `${Number(type) < 2 ? "block" : "none"}`
                                         }}
                                     />
-                                </Grid>
+                                </Grid> */}
                                 <TextField
                                     label="Text"
                                     size="small"
